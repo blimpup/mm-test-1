@@ -1,2 +1,5 @@
+access_control:
+  policies:
+  - tag_query: ()
 engine:
   name: tofu
