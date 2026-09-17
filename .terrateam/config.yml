@@ -1,5 +1,7 @@
-access_control:
-  policies:
-  - tag_query: ()
+apply_requirements:
+  checks:
+    approved:
+      count: 1
+      enabled: true
 engine:
   name: tofu
