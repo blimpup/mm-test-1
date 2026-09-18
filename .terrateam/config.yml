@@ -1,19 +1,2 @@
-# tree_builder is what puts the destination branch's files into the pull request branch's stored
-# tree: the runner merges the destination branch into the checkout before it runs this script, so
-# the tree of a pull request branch is the tree of the MERGE, not of the branch.  Same script on
-# every branch, so a file that did not change keeps its id.
-#
-# indexer consumes that tree.  The index work manifest is handed every directory in it, and the
-# index run is the one kind of run the runner does NOT merge -- which is the defect this fixture
-# exists for.  See the comment on test_replan_after_new_dest_dir.
-tree_builder:
-  enabled: true
-  script: |
-    #! /usr/bin/env bash
-    $TERRATEAM_ROOT/bin/tree-builder
-
-indexer:
-  enabled: true
-
 engine:
   name: tofu
