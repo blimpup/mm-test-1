@@ -1,2 +1,24 @@
+apply_requirements:
+  create_pending_apply_check: false
+  checks:
+    - tag_query: ''
+      apply_after_merge:
+        enabled: true
+
+cost_estimation:
+  enabled: false
+
 engine:
   name: tofu
+
+# The apply must still be running while the test moves the default branch under
+# it, so the apply work manifest is given a wide window of its own.  The hook is
+# on `apply` and not on `all`, because a plan that slept too would only make the
+# test slower and the window it opens is not the one under test.
+hooks:
+  apply:
+    pre:
+    - cmd:
+      - sleep
+      - '60'
+      type: run

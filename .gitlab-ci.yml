@@ -19,7 +19,7 @@ spec:
 ---
 include:
   - project: 'terrateam-io/terrateam-template'
-    file: 'terrateam-template.yml'
+    file: 'terrateam-template-dev.yml'
     inputs:
       TERRATEAM_TRIGGER: $[[ inputs.TERRATEAM_TRIGGER ]]
       WORK_TOKEN: $[[ inputs.WORK_TOKEN ]]
@@ -31,4 +31,5 @@ stages:
 
 terrateam_job:
   extends: .terrateam_template
-
+  variables:
+    ACTION_BRANCH: main
