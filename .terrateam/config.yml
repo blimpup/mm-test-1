@@ -1,5 +1,14 @@
+# The apply has to be started by the merge and by nothing else.
+#
+# `when_modified.autoapply` is what puts a dirspace in the working set of the
+# Autoapply job that closing a pull request always makes.  It is false by
+# default, and with it false that job finds nothing to apply and ends as a noop
+# before any work manifest exists.
+#
+# `apply_after_merge` is what holds that apply back until the merge.  Autoapply
+# on its own would run the apply as soon as the plan succeeded, on the open pull
+# request, and there would be no apply left in flight for the merge to race.
 apply_requirements:
-  create_pending_apply_check: false
   checks:
     - tag_query: ''
       apply_after_merge:
@@ -10,6 +19,9 @@ cost_estimation:
 
 engine:
   name: tofu
+
+when_modified:
+  autoapply: true
 
 # The apply must still be running while the test moves the default branch under
 # it, so the apply work manifest is given a wide window of its own.  The hook is
