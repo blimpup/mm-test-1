@@ -23,14 +23,17 @@ engine:
 when_modified:
   autoapply: true
 
-# The apply must still be running while the test moves the default branch under
-# it, so the apply work manifest is given a wide window of its own.  The hook is
-# on `apply` and not on `all`, because a plan that slept too would only make the
-# test slower and the window it opens is not the one under test.
+# The window the test needs is between the runner taking the work manifest and
+# the runner reporting its result, because that is where the destination branch
+# has to move.  This hook opens that window and holds it open: it runs inside the
+# apply, after the runner has initiated and before anything it does is reported.
+#
+# On `apply` and not on `all`: a plan that slept too would only make the test
+# slower, and the window it opens is not the one under test.
 hooks:
   apply:
     pre:
     - cmd:
       - sleep
-      - '60'
+      - '90'
       type: run
