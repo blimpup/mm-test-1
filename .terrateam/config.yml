@@ -1,7 +1,9 @@
 apply_requirements:
   checks:
-  - approved:
+    approved:
+      count: 1
       enabled: true
-    tag_query: and
 engine:
   name: tofu
+when_modified:
+  autoapply: true
