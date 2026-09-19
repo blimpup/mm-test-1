@@ -1,23 +1,14 @@
-# by_phase permits every step, as all does, but only into an action run of the
-# same phase.  The tree builder, the config builder and the indexer make the
-# setup phase and share one run.  The plans of the three layers make the layer
-# phase and share another.  The two phases never share a run.
-batch_runs:
-  merge_steps: by_phase
-
-tree_builder:
+access_control:
   enabled: true
-  script: '${TERRATEAM_ROOT}/bin/tree-builder'
-
+  policies:
+  - plan: []
+    tag_query: ''
 config_builder:
   enabled: true
-  script: |
-    #! /usr/bin/env python3
-    import json
-    import sys
-    config = json.loads(sys.stdin.read())
-    config.setdefault('indexer', {})['enabled'] = True
-    print(json.dumps(config))
+  script: '#! /usr/bin/env bash
 
+    echo ''{"access_control": {"enabled": false}}''
+
+    '
 engine:
   name: tofu
