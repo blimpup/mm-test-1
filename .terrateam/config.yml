@@ -1,4 +1,8 @@
+dirs:
+  tf:
+    when_modified:
+      autoplan: false
 engine:
   name: tofu
-when_modified:
-  autoplan: false
+indexer:
+  enabled: true
