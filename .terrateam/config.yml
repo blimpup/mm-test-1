@@ -1,9 +1,7 @@
 apply_requirements:
   checks:
-    - tag_query: ''
-      approved:
-        any_of_count: 0
-        require_completed_reviews: true
-        enabled: true
+    approved:
+      count: 1
+      enabled: true
 engine:
   name: tofu
