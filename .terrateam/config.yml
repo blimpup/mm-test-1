@@ -1,14 +1,2 @@
-access_control:
-  enabled: true
-  policies:
-  - plan: []
-    tag_query: ''
-config_builder:
-  enabled: true
-  script: '#! /usr/bin/env bash
-
-    echo ''{"access_control": {"enabled": false}}''
-
-    '
 engine:
   name: tofu
