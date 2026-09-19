@@ -1,9 +1,7 @@
 apply_requirements:
   checks:
-  - approved:
-      any_of:
-      - user:terrateam-test-user01
+    approved:
+      count: 1
       enabled: true
-    tag_query: ''
 engine:
   name: tofu
