@@ -5,6 +5,8 @@
 batch_runs:
   merge_steps: by_phase
 
+# The three steps that prepare a job.  The tree builder gives the tree of the
+# repository, and the config builder turns the indexer on.
 tree_builder:
   enabled: true
   script: '${TERRATEAM_ROOT}/bin/tree-builder'
@@ -18,6 +20,17 @@ config_builder:
     config = json.loads(sys.stdin.read())
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
+
+dirs:
+  database1:
+    when_modified:
+      depends_on: dir:base
+  database2:
+    when_modified:
+      depends_on: dir:base
+  webservice:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
 
 engine:
   name: tofu
