@@ -1,0 +1,32 @@
+dirs:
+  projects/proj1/database1:
+    deps:
+      - projects/proj1/base
+  projects/proj1/database2:
+    deps:
+      - projects/proj1/base
+  projects/proj2/database1:
+    deps:
+      - projects/proj2/base
+  projects/proj2/database2:
+    deps:
+      - projects/proj2/base
+  projects/proj3/database1:
+    deps:
+      - projects/proj3/base
+  projects/proj3/database2:
+    deps:
+      - projects/proj3/base
+  projects/proj1/webservice:
+    deps:
+      - projects/proj1/database1
+      - projects/proj1/database2
+  projects/proj2/webservice:
+    deps:
+      - projects/proj2/database1
+      - projects/proj2/database2
+  projects/proj3/webservice:
+    deps:
+      - projects/proj3/database1
+      - projects/proj3/database2
+
