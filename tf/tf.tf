@@ -1,3 +1,1 @@
-module "foo" {
-  source = "../modules/foo"
-}
+../tf_blank/tf.tf
