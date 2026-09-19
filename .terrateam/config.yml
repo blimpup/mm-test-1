@@ -1,2 +1,10 @@
+cost_estimation:
+  enabled: false
 engine:
   name: tofu
+hooks:
+  all:
+    pre:
+    - cmd:
+      - this-program-does-not-exist
+      type: run
