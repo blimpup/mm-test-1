@@ -1,2 +1,22 @@
+config_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+
+    # Emit the same post hook the static configuration below declares, which is
+    # what a config builder that re-emits the repository configuration does.
+    # The marker is assembled at run time, so this script text does not contain
+    # it and the marker count in the rendered configuration is the count of
+    # hook entries.
+    m="canary"
+
+    echo "{\"hooks\": {\"all\": {\"post\": [{\"type\": \"run\", \"cmd\": [\"echo\", \"posthook-$m\"]}]}}}"
 engine:
   name: tofu
+hooks:
+  all:
+    post:
+      - type: run
+        cmd: ['echo', 'posthook-canary']
+when_modified:
+  autoplan: false
