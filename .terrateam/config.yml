@@ -1,8 +1,13 @@
-drift:
+# A plan and an apply join the run of the steps before them.  The default,
+# setup, permits the tree builder, the config builder and the indexer only.
+batch_runs:
+  merge_steps: all
+
+config_builder:
   enabled: true
-  schedule: hourly
+  script: |
+    #! /usr/bin/env bash
+    echo '{"indexer": {"enabled": true}}'
+
 engine:
   name: tofu
-
-batch_runs:
-  enabled: true
