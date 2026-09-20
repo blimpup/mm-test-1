@@ -1,2 +1,9 @@
+config_builder:
+  enabled: true
+  script: '#! /usr/bin/env bash
+
+    echo "{"
+
+    '
 engine:
   name: tofu
