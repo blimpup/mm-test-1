@@ -1,7 +1,2 @@
-automerge:
-  enabled: true
-  delete_branch: true 
-  merge_strategy: rebase
-
 engine:
   name: tofu
