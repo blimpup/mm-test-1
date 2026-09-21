@@ -1,4 +1,10 @@
+automerge:
+  enabled: true
+  delete_branch: true 
+  merge_strategy: squash
+
+apply_requirements:
+  create_completed_apply_check_on_noop: true
+
 engine:
   name: tofu
-when_modified:
-  autoplan: false
