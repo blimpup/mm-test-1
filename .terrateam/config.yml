@@ -1,5 +1,5 @@
 drift:
-  enabled: true
+  enabled: false
   reconcile: true
   schedule: hourly
 engine:
