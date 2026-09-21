@@ -1,8 +1,20 @@
-drift:
+# Two things have to be true at once for this fixture to reproduce anything.
+#
+# tree_builder is what makes Terrateam store a repo tree, and store one for the destination branch
+# as well as for the pull request branch. Without it there is no destination-branch tree work
+# manifest to watch. Same script on both branches so a file that did not change keeps its id.
+#
+# indexer is what makes the interleaving deterministic. [branch_dirspaces] reaches the index
+# through [synthesized_config], and the index work manifest is only created after the branch tree
+# is stored, so [branch_dirspaces] is still suspended when the destination tree's result arrives.
+tree_builder:
   enabled: true
-  reconcile: true
-  schedule: hourly
-engine:
-  name: tofu
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
+
 indexer:
   enabled: true
+
+engine:
+  name: tofu
