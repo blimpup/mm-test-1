@@ -1,13 +1,6 @@
-dirs:
-  a:
-    when_modified:
-      depends_on:
-        tag_query: dir:b
-        prune_on_no_change: true
-  b:
-    when_modified:
-      depends_on:
-        tag_query: dir:c
-        prune_on_no_change: true
+automerge:
+  enabled: true
+  merge_strategy: squash
+
 engine:
   name: tofu
