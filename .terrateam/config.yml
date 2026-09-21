@@ -1,10 +1,5 @@
 drift:
-  enabled: true
+  enabled: false
   schedule: hourly
 engine:
   name: tofu
-workflows:
-- environment: production
-  tag_query: dir:tf1
-- environment: development
-  tag_query: dir:tf2
