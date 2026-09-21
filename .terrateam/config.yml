@@ -1,12 +1,18 @@
-# The tree builder of the pull request branch decides for the destination branch as well, so this
-# script also runs against a checkout of the destination branch.  Keep bin/tree-builder on both
-# branches: without it here the destination branch tree build fails.  Same script on both branches
-# so a file that did not change keeps its id.
+# A plan and an apply join the run of the steps before them.  The default,
+# setup, permits the tree builder, the config builder and the indexer only.
+batch_runs:
+  merge_steps: all
+
 tree_builder:
   enabled: true
-  script: |
-    #! /usr/bin/env bash
-    $TERRATEAM_ROOT/bin/tree-builder
+  script: '${TERRATEAM_ROOT}/bin/generate build-tree'
 
-engine:
-  name: tofu
+config_builder:
+  enabled: true
+  script: '${TERRATEAM_ROOT}/bin/generate build-config'
+
+hooks:
+  all:
+    pre:
+      - type: run
+        cmd: ['${TERRATEAM_ROOT}/bin/generate', 'build']
