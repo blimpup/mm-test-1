@@ -1,2 +1,19 @@
+dirs:
+  prod/tf1:
+    tags:
+    - tf1
+    - prod
+    - tf1tf2
+  prod/tf2:
+    tags:
+    - tf2
+    - prod
+    - tf1tf2
+  prod/tf3:
+    tags:
+    - tf3
+    - prod
 engine:
   name: tofu
+when_modified:
+  autoplan: false
