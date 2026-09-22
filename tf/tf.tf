@@ -4,6 +4,9 @@ resource "null_resource" "foo" {
 resource "null_resource" "bar" {
 }
 
+resource "null_resource" "baz" {
+}
+
 # Fails when it is applied, after the plan succeeded, so that the apply reports a failed dirspace.
 resource "null_resource" "fail" {
   provisioner "local-exec" {
