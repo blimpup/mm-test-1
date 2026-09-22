@@ -1,13 +1,2 @@
-dirs:
-  svc:
-    when_modified:
-      depends_on: "net.ip in outputs:cfg"
 engine:
-  name: custom
-  init: ['echo', 'init']
-  plan: ['touch', '$TERRATEAM_PLAN_FILE']
-  diff: ['printf', '+ change\n']
-  apply: ['echo', 'apply']
-  outputs: ['cat', 'outputs.json']
-when_modified:
-  file_patterns: ['${DIR}/*']
+  name: tofu
