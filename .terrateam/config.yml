@@ -1,17 +1,6 @@
-# A drift that reconciles, with the reconcile apply held open by a hook, so that the test
-# can move the branch while it runs (RFD 2356).
-
 drift:
-  enabled: true
+  enabled: false
   reconcile: true
   schedule: hourly
 engine:
   name: tofu
-
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - 'sleep'
-      - '60'
-      type: run
