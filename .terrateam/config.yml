@@ -1,31 +1,6 @@
-# A layered run after a merge: database depends on base.  The merge starts the apply, and a hook
-# holds the apply of base open, so that the test can change base on the destination branch while it
-# runs (RFD 2356).  See 0001 for why the apply keys are here.
-
-apply_requirements:
-  checks:
-    - tag_query: ''
-      apply_after_merge:
-        enabled: true
-
-cost_estimation:
+drift:
   enabled: false
-
-dirs:
-  database:
-    when_modified:
-      depends_on: dir:base
-
+  reconcile: true
+  schedule: hourly
 engine:
   name: tofu
-
-when_modified:
-  autoapply: true
-
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - 'sleep'
-      - '60'
-      type: run
