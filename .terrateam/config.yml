@@ -1,2 +1,6 @@
+when_modified:
+  autoapply: false
+  autoplan: true
+
 engine:
   name: tofu
