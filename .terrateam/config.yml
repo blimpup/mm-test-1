@@ -1,2 +1,7 @@
+destination_branches:
+  - branch: main
+  - branch: 'test/*'
+    source_branches: ['test/*']
+
 engine:
   name: tofu
