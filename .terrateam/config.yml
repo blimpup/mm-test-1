@@ -1,2 +1,15 @@
 engine:
   name: tofu
+workflows:
+  - tag_query: dir:svc
+    engine:
+      name: custom
+      init: ['echo', 'init']
+      plan: ['touch', '$TERRATEAM_PLAN_FILE']
+      diff: ['printf', '+ change\n']
+      apply: ['echo', 'apply']
+dirs:
+  svc:
+    when_modified:
+      file_patterns: ['${DIR}/*']
+      depends_on: "db.host in outputs:db"
