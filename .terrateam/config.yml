@@ -1,14 +1,2 @@
-when_modified:
-  autoapply: false
-  autoplan: false
-
-notifications:
-  policies:
-    - tag_query: 'dir:tf1'
-      comment_strategy: 'minimize'
-
-    - tag_query: 'dir:tf2'
-      comment_strategy: 'minimize'
-
 engine:
   name: tofu
