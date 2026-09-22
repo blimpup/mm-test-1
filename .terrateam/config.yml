@@ -1,10 +1,10 @@
-# An open pull request with the tree builder on, whose apply is held open by a hook, so that the
-# test can push to the feature branch while the apply runs (RFD 2356).  The same tree builder is on
-# every branch, so a file that did not change keeps its id.
+# The commit pushed during the apply.  Its tree builder waits longer than the apply runs, thus the
+# server has no tree of this commit when the result of the apply arrives (RFD 2356, Fail safe).
 tree_builder:
   enabled: true
   script: |
     #! /usr/bin/env bash
+    sleep 240
     $TERRATEAM_ROOT/bin/tree-builder
 
 engine:
