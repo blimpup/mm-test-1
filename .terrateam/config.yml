@@ -1,11 +1,17 @@
-# A plan of a merged pull request, asked for by a comment and held open by a hook, so
-# that the test can move the destination branch while it runs (RFD 2356).
+# An open pull request with the tree builder on, whose apply is held open by a hook, so that the
+# test can push to the feature branch while the apply runs (RFD 2356).  The same tree builder is on
+# every branch, so a file that did not change keeps its id.
+tree_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
 
 engine:
   name: tofu
 
 hooks:
-  plan:
+  apply:
     pre:
     - cmd:
       - 'sleep'
