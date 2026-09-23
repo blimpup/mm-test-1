@@ -1,6 +1,6 @@
 drift:
-  enabled: false
-  reconcile: true
+  enabled: true
+  reconcile: false
   schedule: hourly
 engine:
   name: tofu
