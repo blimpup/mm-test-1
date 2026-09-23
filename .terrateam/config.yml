@@ -1,14 +1,6 @@
 drift:
-  enabled: true
+  enabled: false
   reconcile: true
   schedule: hourly
 engine:
   name: tofu
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - test
-      - -n
-      - ''
-      type: run
