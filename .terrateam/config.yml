@@ -1,2 +1,39 @@
+# The apply has to be started by the merge and by nothing else.
+#
+# `when_modified.autoapply` is what puts a dirspace in the working set of the
+# Autoapply job that closing a pull request always makes.  It is false by
+# default, and with it false that job finds nothing to apply and ends as a noop
+# before any work manifest exists.
+#
+# `apply_after_merge` is what holds that apply back until the merge.  Autoapply
+# on its own would run the apply as soon as the plan succeeded, on the open pull
+# request, and there would be no apply left in flight for the merge to race.
+apply_requirements:
+  checks:
+    - tag_query: ''
+      apply_after_merge:
+        enabled: true
+
+cost_estimation:
+  enabled: false
+
 engine:
   name: tofu
+
+when_modified:
+  autoapply: true
+
+# The window the test needs is between the runner taking the work manifest and
+# the runner reporting its result, because that is where the destination branch
+# has to move.  This hook opens that window and holds it open: it runs inside the
+# apply, after the runner has initiated and before anything it does is reported.
+#
+# On `apply` and not on `all`: a plan that slept too would only make the test
+# slower, and the window it opens is not the one under test.
+hooks:
+  apply:
+    pre:
+    - cmd:
+      - sleep
+      - '90'
+      type: run
