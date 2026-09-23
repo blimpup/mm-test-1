@@ -1,23 +1,17 @@
-# by_phase permits every step, as all does, but only into an action run of the
-# same phase.  The tree builder, the config builder and the indexer make the
-# setup phase and share one run.  The plans of the three layers make the layer
-# phase and share another.  The two phases never share a run.
-batch_runs:
-  merge_steps: by_phase
+# A layered run: database depends on base.  The apply of base is held open by a hook, so
+# that the test can change base while it runs (RFD 2356).
 
-tree_builder:
-  enabled: true
-  script: '${TERRATEAM_ROOT}/bin/tree-builder'
-
-config_builder:
-  enabled: true
-  script: |
-    #! /usr/bin/env python3
-    import json
-    import sys
-    config = json.loads(sys.stdin.read())
-    config.setdefault('indexer', {})['enabled'] = True
-    print(json.dumps(config))
-
+dirs:
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
+
+hooks:
+  apply:
+    pre:
+    - cmd:
+      - 'sleep'
+      - '60'
+      type: run
