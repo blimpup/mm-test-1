@@ -1,11 +1,15 @@
-# A plan of a merged pull request, asked for by a comment and held open by a hook, so
-# that the test can move the destination branch while it runs (RFD 2356).
+# A layered run: database depends on base.  The apply of base is held open by a hook, so
+# that the test can change base while it runs (RFD 2356).
 
+dirs:
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
 
 hooks:
-  plan:
+  apply:
     pre:
     - cmd:
       - 'sleep'
