@@ -1,0 +1,15 @@
+#! /usr/bin/env python3
+
+import json
+import os
+
+files = []
+
+for root, dirs, fs in os.walk('./'):
+    files.extend([
+        {
+            'path': os.path.join(root, f),
+        }
+        for f in fs])
+
+print(json.dumps(files))
