@@ -1,16 +1,16 @@
-drift:
-  enabled: true
-  reconcile: true
-  schedule: hourly
+dirs:
+  ds_one:
+    when_modified:
+      file_patterns:
+      - ds_one/*.tf
+      - modules/shared/*.tf
+  ds_two:
+    when_modified:
+      file_patterns:
+      - ds_two/*.tf
+      - modules/shared/*.tf
+  modules/**:
+    when_modified:
+      file_patterns: []
 engine:
   name: tofu
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - test
-      - -n
-      - ''
-      type: run
-indexer:
-  enabled: true
