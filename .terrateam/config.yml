@@ -1,9 +1,11 @@
-# An open pull request with the config builder on, whose apply is held open by a hook, so that the
-# test can push to the feature branch while the apply runs (RFD 2356).
+# The commit pushed during the apply.  Its config builder waits longer than the apply runs, thus the
+# server has no built config of this commit when the result of the apply arrives (RFD 2356, Fail
+# safe).
 config_builder:
   enabled: true
   script: |
     #! /usr/bin/env bash
+    sleep 90
     echo '{"engine": {"name": "tofu"}}'
 
 engine:
