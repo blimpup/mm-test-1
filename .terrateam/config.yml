@@ -1,2 +1,11 @@
+config_builder:
+  enabled: true
+  script: '#! /usr/bin/env bash
+
+    echo "On purpose failed config run"
+
+    exit 1
+
+    '
 engine:
   name: tofu
