@@ -1,2 +1,2 @@
-destination_branches:
-  - dest
+engine:
+  name: tofu
