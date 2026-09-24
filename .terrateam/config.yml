@@ -1,13 +1,5 @@
-# An open pull request whose apply is held open by a hook, so that the test can push to
-# the feature branch while the apply runs (RFD 2356).
+# An open pull request whose apply fails, so that the test can push a file of no directory and
+# see the failed dirspace planned again on the new head (RFD 2356).
 
 engine:
   name: tofu
-
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - 'sleep'
-      - '60'
-      type: run
