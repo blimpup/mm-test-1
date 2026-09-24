@@ -1,7 +1,9 @@
 dirs:
   a:
     when_modified:
-      depends_on: dir:b
+      depends_on:
+        tag_query: dir:b
+        prune_on_no_change: true
   b:
     when_modified:
       depends_on:
