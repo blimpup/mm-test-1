@@ -1,2 +1,10 @@
+dirs:
+  terraform:
+    workspaces:
+      foo: {}
+      bar:
+        when_modified:
+          depends_on: 'workspace:foo'
+
 engine:
   name: tofu
