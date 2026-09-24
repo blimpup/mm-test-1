@@ -1,11 +1,11 @@
-# An open pull request whose apply is held open by a hook, so that the test can push to
-# the feature branch while the apply runs (RFD 2356).
+# A plan of a merged pull request, asked for by a comment and held open by a hook, so
+# that the test can move the destination branch while it runs (RFD 2356).
 
 engine:
   name: tofu
 
 hooks:
-  apply:
+  plan:
     pre:
     - cmd:
       - 'sleep'
