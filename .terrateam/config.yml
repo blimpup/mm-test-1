@@ -1,9 +1,2 @@
-apply_requirements:
-  checks:
-  - approved:
-      all_of:
-      - foo
-      enabled: true
-    tag_query: ''
 engine:
   name: tofu
