@@ -1,2 +1,9 @@
+dirs:
+  l_two:
+    when_modified:
+      depends_on: dir:l_one
+  l_three:
+    when_modified:
+      depends_on: dir:l_two
 engine:
   name: tofu
