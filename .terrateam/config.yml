@@ -1,5 +1,2 @@
-# An open pull request whose apply fails, so that the test can push a file of no directory and
-# see the failed dirspace planned again on the new head (RFD 2356).
-
 engine:
   name: tofu
