@@ -1,2 +1,9 @@
+dirs:
+  projects/**/database*/*.tf:
+    when_modified:
+      depends_on: relative_dir:../base
+  projects/**/webservice/*.tf:
+    when_modified:
+      depends_on: relative_dir:../database1 or relative_dir:../database2
 engine:
   name: tofu
