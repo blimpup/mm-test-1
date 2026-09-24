@@ -1,2 +1,25 @@
+dirs:
+  database1:
+    when_modified:
+      depends_on: dir:base
+  database2:
+    when_modified:
+      depends_on: dir:base
+  webservice:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
 engine:
   name: tofu
+# The [run] step that exits 1 is what makes the apply of [database1] fail, which is the point of
+# this test.  The [init] and [apply] steps after it never run, but they must be in the list:
+# [of_version_1_workflows] refuses an [apply] list that holds no step of type [apply], and that
+# refusal kills the full repo config, thus the test gets a repo-config error and no plan at all.
+workflows:
+- apply:
+  - cmd:
+    - exit
+    - '1'
+    type: run
+  - type: init
+  - type: apply
+  tag_query: dir:database1
