@@ -14,4 +14,4 @@ jobs:
         with:
           terrateam-url: https://devious-logical-scorpion.tunnel.terrateam.dev
           webhook-secret: thisisatestofouractionproxy
-          installation-id: 46646292
+          installation-id: 55143082
