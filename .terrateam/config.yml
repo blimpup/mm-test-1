@@ -1,7 +1,2 @@
-# A plan and an apply join the run of the steps before them.  The default,
-# setup, permits the tree builder, the config builder and the indexer only.
-batch_runs:
-  merge_steps: all
-
 engine:
   name: tofu
