@@ -1,2 +1,11 @@
+dirs:
+  a:
+    when_modified:
+      depends_on: dir:b
+  b:
+    when_modified:
+      depends_on:
+        tag_query: dir:c
+        prune_on_no_change: true
 engine:
   name: tofu
