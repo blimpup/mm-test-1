@@ -1,2 +1,9 @@
+dirs:
+  base:
+    when_modified:
+      depends_on: dir:database
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
