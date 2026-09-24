@@ -1,2 +1,22 @@
+# Two environments, dev and prod.  Each has three directories that must run in
+# order, given by layered runs (when_modified.depends_on).  There are no stacks,
+# so nothing orders one environment against the other: a user may walk one
+# branch of the tree to its end before starting the other one.
+dirs:
+  dev/networking: {}
+  dev/database:
+    when_modified:
+      depends_on: 'dir:dev/networking'
+  dev/app:
+    when_modified:
+      depends_on: 'dir:dev/database'
+  prod/networking: {}
+  prod/database:
+    when_modified:
+      depends_on: 'dir:prod/networking'
+  prod/app:
+    when_modified:
+      depends_on: 'dir:prod/database'
+
 engine:
   name: tofu
