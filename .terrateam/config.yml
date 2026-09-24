@@ -1,2 +1,13 @@
+dirs:
+  database1:
+    when_modified:
+      depends_on: dir:base
+  database2:
+    when_modified:
+      autoplan: false
+      depends_on: dir:base
+  webservice:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
 engine:
   name: tofu
