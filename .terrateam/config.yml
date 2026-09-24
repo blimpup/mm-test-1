@@ -1,10 +1,5 @@
-dirs:
-  database:
-    when_modified:
-      depends_on: dir:base
+drift:
+  enabled: false
+  schedule: hourly
 engine:
   name: tofu
-drift:
-  enabled: true
-  schedule: hourly
-  reconcile: true
