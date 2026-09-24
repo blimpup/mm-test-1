@@ -1,0 +1,4 @@
+foo "bar" {
+}
+
+module "bar" {
