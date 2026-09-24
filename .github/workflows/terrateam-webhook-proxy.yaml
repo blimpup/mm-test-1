@@ -1,0 +1,17 @@
+name: 'Terrateam Webhook Proxy'
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, closed, edited]
+  issue_comment:
+    types: [created]
+  push:
+permissions: {}
+jobs:
+  forward:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: stategraph/action-webhook-proxy@79d05a8b370bab7e554d98f27586c2d93d9e5033
+        with:
+          terrateam-url: https://devious-logical-scorpion.tunnel.terrateam.dev
+          webhook-secret: thisisatestofouractionproxy
+          installation-id: 46646292
