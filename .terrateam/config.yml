@@ -1,5 +1,10 @@
-# An open pull request whose apply is held open by a hook, so that the test can push to
-# the feature branch while the apply runs (RFD 2356).
+# An open pull request with the config builder on, whose apply is held open by a hook, so that the
+# test can push to the feature branch while the apply runs (RFD 2356).
+config_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    echo '{"engine": {"name": "tofu"}}'
 
 engine:
   name: tofu
