@@ -1,2 +1,12 @@
+config_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+
+    echo '{"indexer": {"enabled": true}}'
+
 engine:
   name: tofu
+
+batch_runs:
+  enabled: true
