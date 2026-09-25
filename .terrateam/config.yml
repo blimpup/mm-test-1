@@ -1,5 +1,2 @@
-drift:
-  enabled: false
-  schedule: hourly
 engine:
   name: tofu
