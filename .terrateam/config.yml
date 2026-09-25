@@ -1,2 +1,17 @@
 engine:
-  name: tofu
+  name: custom
+  init: ['echo', 'init']
+  plan: ['touch', '$TERRATEAM_PLAN_FILE']
+  diff: ['printf', '+ added this\n- removed this\n~ ahhh conflict\n']
+  resource_summary: ['echo', '{"created": 2, "updated": 1, "replaced": 3, "deleted": 4}']
+  apply: ['cat', 'foo.txt']
+  outputs: ['echo', '{"foo": "bar"}']
+  unsafe_apply: ['echo', 'unsafe_apply']
+
+when_modified:
+  file_patterns: []
+
+dirs:
+  'mydir':
+    when_modified:
+      file_patterns: ['${DIR}/*.txt']
