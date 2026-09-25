@@ -1,6 +1,15 @@
+# The default config with the tree builder turned on.  With the tree builder on, the server gets
+# the repository tree of a commit only from a work manifest, so the start of an apply that is
+# answered for this commit must wait for a tree build.  The drift fields are unchanged, so this
+# commit does not arm a new drift.
 drift:
   enabled: true
   reconcile: true
   schedule: hourly
+tree_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
 engine:
   name: tofu
