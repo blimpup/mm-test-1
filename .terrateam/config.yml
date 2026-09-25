@@ -1,11 +1,15 @@
-# An open pull request whose plan is held open by a hook, so that the test can push to
-# the feature branch while the plan runs (RFD 2356).
+# A layered run: database depends on base.  The apply of base is held open by a hook, so
+# that the test can change base while it runs (RFD 2356).
 
+dirs:
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
 
 hooks:
-  plan:
+  apply:
     pre:
     - cmd:
       - 'sleep'
