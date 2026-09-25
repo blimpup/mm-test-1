@@ -1,13 +1,20 @@
-# An open pull request with the config builder on, whose apply is held open by a hook, so that the
-# test can push to the feature branch while the apply runs (RFD 2356).
-config_builder:
-  enabled: true
-  script: |
-    #! /usr/bin/env bash
-    echo '{"engine": {"name": "tofu"}}'
+# The apply is started by the merge and held open by a hook, so that the test can move
+# the destination branch while it runs (RFD 2356).  See 0001 for why each key is here.
+
+apply_requirements:
+  checks:
+    - tag_query: ''
+      apply_after_merge:
+        enabled: true
+
+cost_estimation:
+  enabled: false
 
 engine:
   name: tofu
+
+when_modified:
+  autoapply: true
 
 hooks:
   apply:
