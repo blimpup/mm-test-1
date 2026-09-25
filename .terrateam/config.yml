@@ -1,2 +1,4 @@
 engine:
-  name: tofu
+  name: terraform
+  version: latest
+
