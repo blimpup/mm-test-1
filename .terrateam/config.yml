@@ -1,2 +1,9 @@
+dirs:
+  env/dev/app:
+    when_modified:
+      depends_on: "workspace:default and (db.host in relative_outputs:../db)"
+  env/prod/app:
+    when_modified:
+      depends_on: "workspace:default and (db.host in relative_outputs:../db)"
 engine:
   name: tofu
