@@ -56,10 +56,10 @@
            GH_TOKEN: ${{ github.token }}
          run: |
            set -eu
-           id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=tf_output_not_changed-09d126-0&per_page=100" \
+           id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=tf_output_not_changed-063305-0&per_page=100" \
                   --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | last | .id // empty')
            if [ -z "$id" ]; then
-             echo "state store tf_output_not_changed-09d126-0 is empty"
+             echo "state store tf_output_not_changed-063305-0 is empty"
              exit 0
            fi
            echo "restoring state from artifact $id"
@@ -96,6 +96,6 @@
          if: always() && steps.tfstate.outputs.found == 'true'
          uses: actions/upload-artifact@v4
          with:
-           name: tf_output_not_changed-09d126-0
+           name: tf_output_not_changed-063305-0
            path: /tmp/tfstate.tgz
            retention-days: 1
