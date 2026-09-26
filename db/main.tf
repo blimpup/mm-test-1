@@ -10,3 +10,6 @@ output "pw" {
   value     = var.pw
   sensitive = true
 }
+
+resource "null_resource" "db" {
+}
