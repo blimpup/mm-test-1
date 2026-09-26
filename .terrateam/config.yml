@@ -1,2 +1,9 @@
+dirs:
+  app:
+    when_modified:
+      depends_on: "db.host in outputs:db"
+  web:
+    when_modified:
+      depends_on: "url in outputs:app"
 engine:
   name: tofu
