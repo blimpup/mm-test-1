@@ -1,2 +1,6 @@
+dirs:
+  app:
+    when_modified:
+      depends_on: "db.host in outputs:db_tf_no_baseline_0cad74_0"
 engine:
   name: tofu
