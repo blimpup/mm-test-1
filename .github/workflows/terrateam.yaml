@@ -34,12 +34,39 @@
      permissions: # Required to pass credentials to the Terrateam action
        id-token: write
        contents: read
+       # Reading and writing the state artifact
+       actions: read
      runs-on: ubuntu-latest
      timeout-minutes: 1440
      name: Terrateam Action
      environment: '${{ github.event.inputs.environment }}'
      steps:
        - uses: actions/checkout@v4
+       # The local backend writes the state into the workspace, and GitHub deletes the workspace at
+       # the end of the job, so a repository that declares no backend starts every run from nothing.
+       # These steps carry the state from one run to the next in a workflow artifact, which is what
+       # a test of successive applies needs.
+       #
+       # An artifact, and not the Actions cache: a cache entry is scoped to the branch that wrote
+       # it, so a later pull request could not read one an earlier pull request left, while an
+       # artifact belongs to the repository.  The name is the store, and the newest artifact under
+       # that name is the current state.
+       - name: Restore Terraform state
+         env:
+           GH_TOKEN: ${{ github.token }}
+         run: |
+           set -eu
+           id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=tf_output_not_changed-0e6a76-0&per_page=100" \
+                  --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | last | .id // empty')
+           if [ -z "$id" ]; then
+             echo "state store tf_output_not_changed-0e6a76-0 is empty"
+             exit 0
+           fi
+           echo "restoring state from artifact $id"
+           gh api "repos/${{ github.repository }}/actions/artifacts/$id/zip" > /tmp/tfstate.zip
+           unzip -o -d /tmp/tfstate /tmp/tfstate.zip
+           tar -xzf /tmp/tfstate/tfstate.tgz -C .
+           find . -name terraform.tfstate -not -path './.git/*'
        - name: Run Terrateam Action
          id: terrateam
          uses: terrateamio/action@main
@@ -48,3 +75,27 @@
            api-base-url: '${{ github.event.inputs.api-base-url }}'
          env:
            SECRETS_CONTEXT: ${{ toJson(secrets) }}
+       # [always] because the state must survive an apply that stops in the middle.  A run that
+       # wrote no state (a plan of a directory nothing has applied yet) uploads nothing, which the
+       # [found] output says.  The tar keeps the paths, which the artifact zip alone would not: it
+       # roots itself at the common parent of the files it holds.
+       - name: Collect Terraform state
+         id: tfstate
+         if: always()
+         run: |
+           set -eu
+           files=$(find . -name terraform.tfstate -not -path './.git/*')
+           echo "state files: ${files:-none}"
+           if [ -z "$files" ]; then
+             echo "found=false" >> "$GITHUB_OUTPUT"
+             exit 0
+           fi
+           printf '%s\n' "$files" | tar -czf /tmp/tfstate.tgz -T -
+           echo "found=true" >> "$GITHUB_OUTPUT"
+       - name: Save Terraform state
+         if: always() && steps.tfstate.outputs.found == 'true'
+         uses: actions/upload-artifact@v4
+         with:
+           name: tf_output_not_changed-0e6a76-0
+           path: /tmp/tfstate.tgz
+           retention-days: 1
