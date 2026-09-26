@@ -1,8 +1,2 @@
-dirs:
-  app:
-    when_modified:
-      depends_on:
-        tag_query: "db.host in outputs:db"
-        prune_on_no_change: true
 engine:
   name: tofu
