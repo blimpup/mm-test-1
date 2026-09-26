@@ -1,6 +1,2 @@
-dirs:
-  app:
-    when_modified:
-      depends_on: "pw in outputs:db"
 engine:
   name: tofu
