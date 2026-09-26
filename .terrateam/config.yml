@@ -1,2 +1,6 @@
+dirs:
+  app:
+    when_modified:
+      depends_on: "outputs:db"
 engine:
   name: tofu
