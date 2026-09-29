@@ -1,2 +1,6 @@
+automerge:
+  enabled: true
+  delete_branch: true
+
 engine:
   name: tofu
