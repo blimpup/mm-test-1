@@ -32,4 +32,4 @@ stages:
 terrateam_job:
   extends: .terrateam_template
   variables:
-    ACTION_BRANCH: main
+    ACTION_BRANCH: 2559-fix-resource-summary
