@@ -1,2 +1,6 @@
+when_modified:
+  autoapply: false
+
 engine:
-  name: tofu
+  name: stategraph
+  tf_cmd: tofu
