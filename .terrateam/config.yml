@@ -3,5 +3,3 @@ drift:
   schedule: hourly
 engine:
   name: tofu
-destination_branches:
-  - non-default-branch
