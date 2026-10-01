@@ -5,5 +5,3 @@ engine:
   name: tofu
 destination_branches:
   - non-default-branch
-indexer:
-  enabled: true
