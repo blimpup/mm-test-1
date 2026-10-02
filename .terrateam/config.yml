@@ -1,7 +1,5 @@
 drift:
-  enabled: true
-  reconcile: true
+  enabled: false
   schedule: hourly
-  tag_query: dir:tf
 engine:
   name: tofu
