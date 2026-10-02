@@ -1,19 +1,5 @@
-tree_builder:
-  enabled: true
-  script: '#! /usr/bin/env bash
-
-    echo ''[{"path": "tf/tf.tf"}]''
-
-    '
-config_builder:
-  enabled: true
-  script: '#! /usr/bin/env bash
-
-    echo ''{}''
-
-    '
 drift:
-  enabled: true
+  enabled: false
   reconcile: true
   schedule: hourly
 engine:
