@@ -1,2 +1,2 @@
 k8s_clusters = { main = "eks-dev" }
-other        = "o1"
+other        = "o2"
