@@ -1,5 +1,5 @@
 drift:
-  enabled: false
+  enabled: true
   schedule: hourly
 engine:
   name: tofu
