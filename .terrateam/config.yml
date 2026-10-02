@@ -1,13 +1,5 @@
-config_builder:
-  enabled: true
-  script: |
-    echo '{}'
-
 drift:
-  enabled: true
-  schedules:
-    default:
-      schedule: hourly
-      tag_query: 'dir:tf2'
+  enabled: false
+  schedule: hourly
 engine:
   name: tofu
