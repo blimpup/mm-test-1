@@ -20,3 +20,7 @@ output "k8s_clusters" {
 output "other" {
   value = var.other
 }
+
+locals {
+  note = "a change that changes nothing"
+}
