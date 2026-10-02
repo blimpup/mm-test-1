@@ -1,23 +1,5 @@
-config_builder:
-  enabled: true
-  script: |
-    ${TERRATEAM_ROOT}/bin/build-config
-
+drift:
+  enabled: false
+  schedule: hourly
 engine:
   name: tofu
-
-dirs:
-  '**/tfvars/**':
-    when_modified:
-      file_patterns: []
-
-drift:
-  enabled: true
-  schedules:
-    dev:
-      tag_query: "workspace:dev"
-      schedule: hourly
-    stg:
-      tag_query: "workspace:stg"
-      schedule: hourly
-
