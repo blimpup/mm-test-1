@@ -56,10 +56,10 @@
            GH_TOKEN: ${{ github.token }}
          run: |
            set -eu
-           id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=tf_noop_plan_prunes_dependent-0e8979-0&per_page=100" \
+           id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=tf_noop_plan_prunes_dependent-0e95f5-0&per_page=100" \
                   --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | last | .id // empty')
            if [ -z "$id" ]; then
-             echo "state store tf_noop_plan_prunes_dependent-0e8979-0 is empty"
+             echo "state store tf_noop_plan_prunes_dependent-0e95f5-0 is empty"
              exit 0
            fi
            echo "restoring state from artifact $id"
@@ -97,6 +97,6 @@
          if: always() && steps.tfstate.outputs.found == 'true'
          uses: actions/upload-artifact@v4
          with:
-           name: tf_noop_plan_prunes_dependent-0e8979-0
+           name: tf_noop_plan_prunes_dependent-0e95f5-0
            path: /tmp/tfstate.tgz
            retention-days: 1
