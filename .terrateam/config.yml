@@ -1,2 +1,5 @@
+# A pull request whose apply fails; then a push of an empty configuration gives a plan that finds
+# no changes, and the next apply command writes the failed apply check again.
+
 engine:
   name: tofu
