@@ -1,6 +1,17 @@
-apply_requirements:
-  create_completed_apply_check_on_noop: true
 engine:
   name: tofu
-indexer:
-  enabled: true
+
+dirs:
+  tf2:
+    when_modified:
+      autoapply: true
+
+stacks:
+  names:
+    stack1:
+      tag_query: 'dir:tf1'
+    stack2:
+      tag_query: 'dir:tf2'
+      rules:
+        plan_after:
+          - stack1
