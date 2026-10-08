@@ -1,2 +1,13 @@
+automerge:
+  enabled: true
 engine:
   name: tofu
+dirs:
+  tf:
+    workspaces:
+      workspace1:
+        tags:
+        - workspace1
+      workspace2:
+        tags:
+        - workspace2
