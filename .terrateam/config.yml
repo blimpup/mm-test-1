@@ -1,15 +1,21 @@
-# The same job as the feature tree, without the dirs: the default branch holds
-# no terraform directory.  The builders run the same steps there, so a run of
-# the default branch meets no configuration that the feature branch does not.
+# RFD 2903: queued work manifests of chained layers share a compute node.
+#
+# The cap of three: one compute node of this job takes at most three work
+# manifests.  by_phase holds the wall between the setup steps and the plans, so
+# the cap decides only how the plans spread over nodes.
 batch_runs:
   enabled: true
   max_workspaces_per_batch: 1
   max_work_manifests_per_node: 3
   merge_steps: by_phase
 
+# At most two runs of this job run at the same time.  The work of a layer waits
+# in the queue, and a node of an earlier layer can take it.
 work_manifests:
   concurrent_runs: 2
 
+# The three steps that prepare a job.  The tree builder gives the tree of the
+# repository, and the config builder turns the indexer on.
 tree_builder:
   enabled: true
   script: '${TERRATEAM_ROOT}/bin/tree-builder'
@@ -23,6 +29,23 @@ config_builder:
     config = json.loads(sys.stdin.read())
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
+
+# Three layers of two dirspaces each.  The first two layers plan no changes, so
+# the server chains one layer to the next with no comment from a user.  The
+# third layer has a change and stops the job at the plan comment.
+dirs:
+  database1:
+    when_modified:
+      depends_on: dir:base1 or dir:base2
+  database2:
+    when_modified:
+      depends_on: dir:base1 or dir:base2
+  webservice1:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
+  webservice2:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
 
 engine:
   name: tofu
