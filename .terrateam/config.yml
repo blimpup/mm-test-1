@@ -1,11 +1,18 @@
-# The same job as the feature tree, without the dirs: the default branch holds
-# no terraform directory.  The builders run the same steps there, so a run of
-# the default branch meets no configuration that the feature branch does not.
+# RFD 2903: one directory with five workspaces, one compute node for the plans.
+#
+# This sets no max_work_manifests_per_node, so the default of nine applies.
+# The five plan work manifests of the single layer fit on one node, and the
+# count of action runs is two: one for the setup and one for the five plans.
+#
+# This is the control of 0003.  The two configurations differ in one key, so a
+# difference of the two counts can come from that key and from nothing else.
 batch_runs:
   enabled: true
   max_workspaces_per_batch: 1
   merge_steps: by_phase
 
+# The three steps that prepare a job.  The tree builder gives the tree of the
+# repository, and the config builder turns the indexer on.
 tree_builder:
   enabled: true
   script: '${TERRATEAM_ROOT}/bin/tree-builder'
@@ -19,6 +26,17 @@ config_builder:
     config = json.loads(sys.stdin.read())
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
+
+# Five workspaces of one directory.  The directory changed, so every workspace
+# plans, and batch_runs makes each one a work manifest of its own.
+dirs:
+  terraform:
+    workspaces:
+      one: {}
+      two: {}
+      three: {}
+      four: {}
+      five: {}
 
 engine:
   name: tofu
