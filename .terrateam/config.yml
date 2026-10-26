@@ -1,12 +1,28 @@
-# The same job as the feature tree, without the dirs: the default branch holds
-# no terraform directory.  The builders run the same steps there, so a run of
-# the default branch meets no configuration that the feature branch does not.
+# RFD 2903: a cap of two binds, so six plan work manifests take three runs.
+#
+# compute_node_work/0002 measured two runs after the plan: one for the three
+# setup steps and one for the five plans, both at the default cap of nine.
+# This is that fixture with a cap of two, six workspaces and a concurrent_runs
+# limit of three.  The cap of two splits the three setup work manifests over two
+# nodes, so the setup takes two runs.  The same cap splits the six plan work
+# manifests over three nodes, so the plans take three runs.  The count after the
+# plan is therefore five.  The limit of three lets the three plan nodes run at
+# the same time, so the cap decides the count and the limit does not delay it.
+#
+# The six applies take three runs for the same reason, so the count after the
+# apply is eight: the five above and three more.
 batch_runs:
   enabled: true
   max_workspaces_per_batch: 1
   max_work_manifests_per_node: 2
   merge_steps: by_phase
 
+# At most three work manifests of this job run at the same time.
+work_manifests:
+  concurrent_runs: 3
+
+# The three steps that prepare a job.  The tree builder gives the tree of the
+# repository, and the config builder turns the indexer on.
 tree_builder:
   enabled: true
   script: '${TERRATEAM_ROOT}/bin/tree-builder'
@@ -20,6 +36,31 @@ config_builder:
     config = json.loads(sys.stdin.read())
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
+
+# Six workspaces of one directory.  The directory changed, so every workspace
+# plans, and batch_runs makes each one a work manifest of its own.
+dirs:
+  terraform:
+    workspaces:
+      one: {}
+      two: {}
+      three: {}
+      four: {}
+      five: {}
+      six: {}
+
+# Every workspace takes the tfvars file that carries its own name, so the six
+# workspaces of one directory plan six values of the variable that main.tf
+# reads.  ${TERRATEAM_WORKSPACE} is the workspace of the run, and the file sits
+# next to main.tf, which is where the steps run.  The apply takes no file of its
+# own: it applies the plan that the plan step stored, and the plan carries the
+# values.
+workflows:
+  - tag_query: ''
+    plan:
+      - type: init
+      - type: plan
+        extra_args: ['-var-file=${TERRATEAM_WORKSPACE}.tfvars']
 
 engine:
   name: tofu
