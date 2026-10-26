@@ -4,11 +4,7 @@
 batch_runs:
   enabled: true
   max_workspaces_per_batch: 1
-  max_work_manifests_per_node: 3
   merge_steps: by_phase
-
-work_manifests:
-  concurrent_runs: 2
 
 tree_builder:
   enabled: true
