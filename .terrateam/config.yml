@@ -1,5 +1,27 @@
+# RFD 2903: the fixture of concurrent_runs_serializes.
+#
+# The limit is one, so the job runs one plan work manifest at a time.  Two
+# terrateam plan statuses are then never pending at the same instant.  The limit
+# is one so that no pair of plans may run together: with a higher limit two
+# plans at once are correct, and only a limit of one makes two pending plan
+# statuses a failure of the product.
+#
+# batch_runs is enabled and max_workspaces_per_batch is one, so every one of the
+# five workloads makes its work manifest of its own.  The two builders come from
+# compute_node_work/0002, and both trees ship bin/tree-builder, because
+# await_branch_setup waits for the three setup statuses before the pull request
+# opens.
 cost_estimation:
   enabled: false
+
+engine:
+  name: tofu
+
+parallel_runs: 10
+
+batch_runs:
+  enabled: true
+  max_workspaces_per_batch: 1
 
 # The three steps that prepare a job.  The tree builder gives the tree of the
 # repository, and the config builder turns the indexer on.
@@ -17,5 +39,5 @@ config_builder:
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
 
-engine:
-  name: tofu
+work_manifests:
+  concurrent_runs: 1
