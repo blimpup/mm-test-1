@@ -1,2 +1,16 @@
 engine:
   name: tofu
+stacks:
+  names:
+    databases:
+      tag_query: 'dir:database1 or dir:database2'
+      rules:
+        modified_by:
+          - base
+    base:
+      tag_query: 'dir:base'
+    webservice:
+      tag_query: 'dir:webservice'
+      rules:
+        modified_by:
+          - databases
