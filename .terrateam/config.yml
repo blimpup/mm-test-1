@@ -1,2 +1,13 @@
+stacks:
+  names:
+    tf1:
+      tag_query: 'does_not_exist'
+    tf2:
+      tag_query: 'does_not_exist'
+    default:
+      stacks:
+        - tf1
+        - tf2
+
 engine:
   name: tofu
