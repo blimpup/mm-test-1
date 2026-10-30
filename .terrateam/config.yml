@@ -1,2 +1,12 @@
+stacks:
+  names:
+    stack1:
+      tag_query: 'dir:tf1'
+      rules:
+        apply_after:
+          - stack2
+    stack2:
+      tag_query: 'dir:tf2'
+
 engine:
   name: tofu
