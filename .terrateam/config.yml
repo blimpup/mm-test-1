@@ -1,2 +1,17 @@
+stacks:
+  names:
+    base:
+      tag_query: 'dir:base'
+    network:
+      tag_query: 'dir:network'
+      rules:
+        plan_after:
+          - base
+    service:
+      tag_query: 'dir:service'
+      rules:
+        plan_after:
+          - network
+
 engine:
   name: tofu
