@@ -1,2 +1,23 @@
+stacks:
+  names:
+    mystack:
+      tag_query: 'dir:tf1'
+      variables:
+        MY_STACK_VARIABLE: 'this-is-my-stack-variable'
+    myotherstack:
+      tag_query: 'dir:tf2'
+      variables:
+        MY_STACK_VARIABLE: 'this-is-my-other-stack-variable'
+
 engine:
   name: tofu
+
+workflows:
+  - tag_query: ''
+    plan:
+      - type: run
+        cmd: ['echo', '${TERRATEAM_STACK}-${MY_STACK_VARIABLE}']
+      - type: run
+        cmd: ['test', '-n', '']
+      - type: init
+      - type: plan
