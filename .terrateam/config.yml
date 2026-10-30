@@ -1,2 +1,22 @@
+stacks:
+  names:
+    mystack:
+      tag_query: ''
+      variables:
+        ENV: production
+
 engine:
   name: tofu
+
+# The [run] step that names a program which does not exist is what makes the plan fail; the test
+# waits for that program name in the plan output, and for the stack variable in [environment].  The
+# [init] and [plan] steps after it never execute, but they must be in the list: a [plan] list with
+# no [plan] step makes the whole repo config invalid, and then the test gets a config error instead.
+workflows:
+  - tag_query: 'stack_name:mystack'
+    environment: '${ENV}'
+    plan:
+      - type: run
+        cmd: ['thisprogramdoesnotexist']
+      - type: init
+      - type: plan
