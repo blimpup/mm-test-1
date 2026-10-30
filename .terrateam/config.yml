@@ -1,2 +1,22 @@
+stacks:
+  names:
+    mystack:
+      tag_query: ''
+      variables:
+        env: production
+
 engine:
   name: tofu
+
+# This test waits for "Missing template variable", because [environment] names ${ENV} and the stack
+# declares [env].  That error can only be reported once the config itself loads, thus the [init] and
+# [plan] steps have to be here: a [plan] list with no [plan] step makes the whole repo config
+# invalid, and the test would get that error instead of the one it is about.
+workflows:
+  - tag_query: 'stack_name:mystack'
+    environment: '${ENV}'
+    plan:
+      - type: run
+        cmd: ['thisprogramdoesnotexist']
+      - type: init
+      - type: plan
