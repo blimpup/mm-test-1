@@ -1,5 +1,21 @@
+# RFD 2903: the fixture of concurrent_runs_serializes_setup, the ordered
+# variant of 0002.
+#
+# This is 0002 with this comment as the only difference: no key changed, and
+# the limit is still one.  The test reads the created_at of the statuses and
+# asserts the order of the job: the three setup steps first, then the five
+# plans, then the five applies.
 cost_estimation:
   enabled: false
+
+engine:
+  name: tofu
+
+parallel_runs: 10
+
+batch_runs:
+  enabled: true
+  max_workspaces_per_batch: 1
 
 # The three steps that prepare a job.  The tree builder gives the tree of the
 # repository, and the config builder turns the indexer on.
@@ -17,5 +33,5 @@ config_builder:
     config.setdefault('indexer', {})['enabled'] = True
     print(json.dumps(config))
 
-engine:
-  name: tofu
+work_manifests:
+  concurrent_runs: 1
