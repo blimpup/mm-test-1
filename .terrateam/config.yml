@@ -1,2 +1,482 @@
+
+## cloud foundations changes:
+# see this config file. in particular note:
+# tfvars folder for each top level module (iam, vpc, rm) - agreed
+# tfvars names - agreed
+# seperation of org and root - TBC - agreed (use optional)
+# foundation service accounts MUST always be defined at the folder level (not project level) - agreed
+  # i.e. they must be defined in root_cloud_iam
+# in variables.tf variables must have default {} - agreed
+  # e.g. "variable "cloud_service_accounts" {" missing default {}
+  # seperatley to terrateam, should also have types, etc.
+
+
+## ai foundations changes:
+# rename top_folder to ai_foundations
+# add /tfvars/ for each top level module (iac)
+# rename ai_foundations/iac/applications/ai -> ai_foundations/iac:
+# seperate envs for cloud foundations iam
+# plus seperate envs for ai foundations iac
+# naming of tfvars, see below
+
+
+## data foundations changes:
+# rename top_folder to data_foundations
+# add /tfvars/ for each top level module (iac)
+# change to use tfvars to be consistent with cloud foundations and ai foundations
+# rename terraform folder data infra platform -> data_foundations/iac:
+# seperate envs for cloud foundations iam and vpc
+# plus seperate envs for data foundations iac
+# naming of tfvars, see below
+
+
+
+definitions:
+  # define YAML anchors:
+  cloud_foundations:
+    file_patterns: &cloud_foundations_file_patterns
+      - "${DIR}/**/*.tf"
+      - "cloud_foundations/modules/**/*.tf"
+      - "${DIR}/tfvars/${WORKSPACE}.tfvars"
+  ai_foundations:
+    file_patterns: &ai_foundations_file_patterns
+      - "${DIR}/**/*.tf"
+      - "${DIR}/tfvars/${WORKSPACE}.tfvars"
+  data_foundations:
+    file_patterns: &data_foundations_file_patterns
+      - "${DIR}/**/*.tf"
+      - "data_foundations/modules/**/*.tf" ## ???
+      - "${DIR}/tfvars/${WORKSPACE}.tfvars"
+
+
+
+# Global config. Can be overridden at the dir level
+when_modified:
+  # ignore any directories which are not explicity defined in dirs:
+  file_patterns: []
 engine:
-  name: tofu
+  # pin terraform version:
+  name: terraform
+  version: 1.13.2
+
+
+## Questions for later:
+# 4) test if plan_after dependencies could actually be apply_after. For now safer to assume plan_after. ###?? remove "## could be apply_after? test to confirm"" for now? - yes
+# 6) access_control necessary for MVP? - yes, but just basic
+# 7) apply_requirements necessary for MVP? - yes, but just basic
+# 8) use environment (github/gitlab) to seperate secrets for Google Cloud access? - yes, but need to do
+# 9) any differences with advanced modules?
+
+
+
+dirs:
+  cloud_foundations/resource-manager:
+    # no environments, just org
+    tags: [fnd, rm]
+    # use terraform workspaces for isolating terrateam workspaces
+    create_and_select_workspace: true
+    # default file_patterns for all workspaces in this dir
+    when_modified:
+      file_patterns: *cloud_foundations_file_patterns
+    workspaces:
+      root_cloud_rm:
+        tags: [cloud, root]
+      root_ai_rm:
+        tags: [ai, root]
+      root_data_rm:
+        tags: [data, root]
+  cloud_foundations/vpc:
+    tags: [fnd, vpc]
+    # use terraform workspaces for isolating terrateam workspaces
+    create_and_select_workspace: true
+    # default file_patterns for all workspaces in this dir
+    when_modified:
+      file_patterns: *cloud_foundations_file_patterns
+    workspaces:
+      dev_cloud_vpc:
+        tags: [cloud, dev]
+      test_cloud_vpc:
+        tags: [cloud, test]
+      prod_cloud_vpc:
+        tags: [cloud, prod]
+      dev_data_vpc:
+        tags: [data, dev]
+      test_data_vpc:
+        tags: [data, test]
+      prod_data_vpc:
+        tags: [data, prod]
+  cloud_foundations/iam:
+    # org is totally independent from environments (dev/test/prod)
+    tags: [fnd, iam]
+    # use terraform workspaces for isolating terrateam workspaces
+    create_and_select_workspace: true
+    # default file_patterns for all workspaces in this dir
+    when_modified:
+      file_patterns: *cloud_foundations_file_patterns
+    workspaces:
+      org_cloud_iam:
+        tags: [cloud, org]
+      root_cloud_iam:
+        tags: [cloud, root]
+      dev_cloud_iam:
+        tags: [cloud, dev]
+      test_cloud_iam:
+        tags: [cloud, test]
+      prod_cloud_iam:
+        tags: [cloud, prod]
+      root_ai_iam:
+        tags: [ai, root]
+      dev_ai_iam:
+        tags: [ai, dev]
+      test_ai_iam:
+        tags: [ai, test]
+      prod_ai_iam:
+        tags: [ai, prod]
+      root_data_iam:
+        tags: [data, root]
+      dev_data_iam:
+        tags: [data, dev]
+      test_data_iam:
+        tags: [data, test]
+      prod_data_iam:
+        tags: [data, prod]
+  ai_foundations/iac:
+    tags: [fnd, ai, iac]
+    # use terraform workspaces for isolating terrateam workspaces
+    create_and_select_workspace: true
+    # default file_patterns for all workspaces in this dir
+    when_modified:
+      file_patterns: *ai_foundations_file_patterns
+    workspaces:
+      dev_ai_iac:
+        tags: [dev]
+      test_ai_iac:
+        tags: [test]
+      prod_ai_iac:
+        tags: [prod]
+  data_foundations/iac:
+    tags: [fnd, data, iac]
+    # use terraform workspaces for isolating terrateam workspaces
+    create_and_select_workspace: true
+    # default file_patterns for all workspaces in this dir
+    when_modified:
+      file_patterns: *data_foundations_file_patterns
+    workspaces:
+      dev_data_iac:
+        tags: [dev]
+      test_data_iac:
+        tags: [test]
+      prod_data_iac:
+        tags: [prod]
+
+
+
+stacks:
+  names:
+    #########################################
+    ########### Cloud Foundations ###########
+    #########################################
+
+    ######## Cloud Nested Stacks ############
+
+    org_cloud:
+      # curretnly just one base stack, but future proof for things like org level organisation firewall policies
+      stacks:
+        - org_cloud_iam
+
+    root_cloud:
+      stacks:
+        - root_cloud_rm
+        - root_cloud_iam
+      rules:
+        plan_after:
+          - org_cloud
+
+
+    dev_cloud:
+      stacks:
+        - dev_cloud_vpc
+        - dev_cloud_iam
+      rules:
+        plan_after:
+          - org_cloud
+          - root_cloud
+
+    test_cloud:
+      stacks:
+        - test_cloud_vpc
+        - test_cloud_iam
+      rules:
+        plan_after:
+          - org_cloud
+          - root_cloud
+        apply_after:
+          - dev_cloud
+
+    prod_cloud:
+      stacks:
+        - prod_cloud_vpc
+        - prod_cloud_iam
+      rules:
+        plan_after:
+          - org_cloud
+          - root_cloud
+        apply_after:
+          - dev_cloud
+          - test_cloud
+
+
+    ######## Cloud Base Stacks ############
+
+    org_cloud_iam:
+      # Only used for ORG level IAM bindings or custom roles.
+      # All project level roles must be done in the env specfic project
+      tag_query: "workspace:org_cloud_iam"
+
+    root_cloud_rm:
+      tag_query: "workspace:root_cloud_rm"
+      # rm has no environments, just root
+
+    root_cloud_iam:
+      # Only used for root level IAM bindings or custom roles. (level 1 folders under org)
+      # All project level roles must be done in the env specfic project
+      tag_query: "workspace:root_cloud_iam"
+      rules:
+        plan_after:
+          - root_cloud_rm # dependency as folder needs to exist to apply iam
+
+
+    dev_cloud_vpc:
+      tag_query: "workspace:dev_cloud_vpc"
+      # To avoid circular dependencies on dev_cloud_iam:
+      # foundation service accounts MUST always be defined at the folder level (not project level)
+      # i.e. they must be defined in root_cloud_iam
+
+    dev_cloud_iam:
+      tag_query: "workspace:dev_cloud_iam"
+      rules:
+        plan_after:
+          - dev_cloud_vpc
+        modified_by:
+          - root_cloud_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+
+    test_cloud_vpc:
+      tag_query: "workspace:test_cloud_vpc"
+
+    test_cloud_iam:
+      tag_query: "workspace:test_cloud_iam"
+      rules:
+        plan_after:
+          - test_cloud_vpc
+        modified_by:
+          - root_cloud_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+
+    prod_cloud_vpc:
+      tag_query: "workspace:prod_cloud_vpc"
+
+    prod_cloud_iam:
+      tag_query: "workspace:prod_cloud_iam"
+      rules:
+        plan_after:
+          - prod_cloud_vpc
+        modified_by:
+          - root_cloud_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+
+    #########################################
+    ############ AI Foundations ############# ## when copy/paste for data, also need data_vpcs
+    #########################################
+
+    ########## AI Nested Stacks #############
+
+    root_ai:
+      stacks:
+        - root_ai_rm
+        - root_ai_iam
+      rules:
+        plan_after:
+          - org_cloud # dependency on cloud foundations
+          - root_cloud # dependency on cloud foundations
+
+
+    dev_ai:
+      stacks:
+        - dev_ai_iam
+        - dev_ai_iac
+      rules:
+        plan_after:
+          - org_cloud # dependency on cloud foundations
+          - root_cloud # dependency on cloud foundations
+          - root_ai
+        apply_after:
+          - dev_cloud # dependency on cloud foundations. Should be plan_after? Ask Giulia - right now, no need but might change
+
+
+    test_ai:
+      stacks:
+        - test_ai_iam
+        - test_ai_iac
+      rules:
+        plan_after:
+          - org_cloud # dependency on cloud foundations
+          - root_cloud # dependency on cloud foundations
+          - root_ai
+        apply_after:
+          - test_cloud # dependency on cloud foundations. Should be plan_after? Ask Giulia - right now, no need but might change
+          - dev_ai
+
+
+    prod_ai:
+      stacks:
+        - prod_ai_iam
+        - prod_ai_iac
+      rules:
+        plan_after:
+          - org_cloud # dependency on cloud foundations
+          - root_cloud # dependency on cloud foundations
+          - root_ai
+        apply_after:
+          - prod_cloud # dependency on cloud foundations. Should be plan_after? Ask Giulia - right now, no need but might change
+          - dev_ai
+          - test_ai
+
+
+    ########## AI Base Stacks #############
+
+    root_ai_rm:
+      tag_query: "workspace:root_ai_rm"
+      # rm has no environments, just org
+
+    root_ai_iam:
+      # Only used for root level IAM bindings or custom roles.
+      # All project level roles must be done in the env specfic project
+      tag_query: "workspace:root_ai_iam"
+      rules:
+        plan_after:
+          - root_ai_rm # dependency as folder needs to exist to apply iam
+
+
+    dev_ai_iam:
+      tag_query: "workspace:dev_ai_iam"
+      rules:
+        modified_by:
+          - root_ai_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+    dev_ai_iac:
+      tag_query: "workspace:dev_ai_iac"
+      rules:
+        plan_after:
+          - dev_ai_iam # Dependency as custom service account needs to exist before creating resource
+
+
+    test_ai_iam:
+      tag_query: "workspace:test_ai_iam"
+      rules:
+        modified_by:
+          - root_ai_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+    test_ai_iac:
+      tag_query: "workspace:test_ai_iac"
+      rules:
+        plan_after:
+          - test_ai_iam # Dependency as custom service account needs to exist before creating resource
+
+
+    prod_ai_iam:
+      tag_query: "workspace:prod_ai_iam"
+      rules:
+        modified_by:
+          - root_ai_rm # Neccessary to automatically add the service accounts for newly enabled APIs
+
+    prod_ai_iac:
+      tag_query: "workspace:prod_ai_iac"
+      rules:
+        plan_after:
+          - prod_ai_iam # Dependency as custom service account needs to exist before creating resource
+
+
+
+
+
+# workflows:
+#   # Common workflow for all dirspaces. Leverages parameterised tfvars input
+#   - tag_query: fnd
+#     plan:
+#       - type: init
+#       - type: plan
+#         extra_args: ["-var-file=tfvars/${TERRATEAM_WORKSPACE}.tfvars"]
+#     apply:
+#       - type: init
+#       - type: apply
+
+
+
+# access_control:
+# Specifies user permissions for operations
+# (authz (who can do what))
+
+
+# apply_requirements:
+# Defines preconditions for applying changes
+# (operational / change management safeguards (when an apply is allowed))
+
+
+
+# hooks:
+# Executes custom commands before or after operations
+# I don't think we need this
+
+
+
+
+
+
+######## Resolved questions / comments / todos ########
+
+# ${DIR} and ${TERRATEAM_WORKSPACE} in when_modified.file_patterns. ?? - solved. needs to be ${WORKSPACE}
+# Stacks are getting messy as the monorepo+envs is growing => maybe nested stacks? - solved. nested stacks added!
+
+
+## Questions for later:
+# 1) split org_iam into org_iam and root_iam + rename org_rm -> root_rm - yes!
+#   a) what's the benefit / use case? they have the same dependencies no? - yes, but:
+#   - consistency with the principle that each module should manage just one area
+#   - also for seperation of permissions and least privilige
+# 2) add "_cloud" to cloud foundations workspace names. e.g. org_rm -> org_cloud_rm - I'm leaning towards no - actually, yes. vitalie is a genius
+# 3) folder structure - see photos of whiteboard - actually, no impact to terrateam. plus, need to be able to support multiple options. only affects tfvars not terrateam
+# 5) merge in main.tf an issue? - no issues
+
+
+### move file patterns from workspace to dir? - yes! this was awesome!
+
+
+#### Cloud stacks:
+
+# Dependency order: org_iam -> root_rm -> root_iam -> env VPCs -> env IAMs ### update
+
+### create org nested stack? i.e. containing org_rm and org_cloud_iam? - yes!
+### benefits: simpler config as can just do plan_after: org; more consistent; clearer
+
+
+# dev_cloud_vpc:
+#   tag_query: "workspace:dev_cloud_vpc" ### potential circular dependency on dev_iam? options?
+#   # e.g. if creating a vpc service account at the project level, not the org level
+#   # solution? - yes! (see chat with Jonas): foundation service accounts MUST always be defined at the folder level (not project level)
+#   # then they can be defined in org_iam
+
+
+#### AI stacks:
+
+### create root nested stack? i.e. containing root_rm and root_iam? - yes
+### benefits: simpler config as can just do plan_after: root; more consistent; clearer
+
+
+## Is this order correct or should it be dev_ai_iam -> dev_ai_iac? - should be iam then iac
+
+
+### ai_iam envs too???? - yes
+
+
+### add grouping for nested plus base stacks, plus ai/data - done!
