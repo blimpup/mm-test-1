@@ -1,2 +1,41 @@
+# A depends_on that crosses a stack boundary.  dev/database is in the stack dev
+# and names prod/networking, which is in the stack prod.  The two stacks share
+# no nested stack, so the dependency reaches out of its stack and the
+# configuration must be rejected.
+dirs:
+  dev/networking:
+    tags:
+      - dev
+  dev/database:
+    tags:
+      - dev
+    when_modified:
+      depends_on: 'dir:prod/networking'
+  dev/app:
+    tags:
+      - dev
+    when_modified:
+      depends_on: 'dir:dev/database'
+  prod/networking:
+    tags:
+      - prod
+  prod/database:
+    tags:
+      - prod
+    when_modified:
+      depends_on: 'dir:prod/networking'
+  prod/app:
+    tags:
+      - prod
+    when_modified:
+      depends_on: 'dir:prod/database'
+
+stacks:
+  names:
+    dev:
+      tag_query: 'dev'
+    prod:
+      tag_query: 'prod'
+
 engine:
   name: tofu
