@@ -1,5 +1,21 @@
 cost_estimation:
   enabled: false
 
+# The three steps that prepare a job.  The tree builder gives the tree of the
+# repository, and the config builder turns the indexer on.
+tree_builder:
+  enabled: true
+  script: '${TERRATEAM_ROOT}/bin/tree-builder'
+
+config_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env python3
+    import json
+    import sys
+    config = json.loads(sys.stdin.read())
+    config.setdefault('indexer', {})['enabled'] = True
+    print(json.dumps(config))
+
 engine:
   name: tofu
