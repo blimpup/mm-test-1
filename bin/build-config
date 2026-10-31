@@ -1,0 +1,385 @@
+#! /usr/bin/env python3
+
+import json
+import os
+import sys
+
+
+MIN_DIR_NUM = 0
+MAX_DIR_NUM = 100
+
+# The list of workspaces that every directory gets unless specified in
+# WORKSPACES_OVERRIDE
+DEFAULT_WORKSPACES = [
+    "do1",
+    # "dev",
+    # "stg"
+]
+
+# Mapping of a directory name to the list of workspaces it should should have.
+WORKSPACES_OVERRIDE = {
+    "45-aws-efs-csi-driver": [
+        "jenkins-cd_do1",
+        "jenkins-cd_dev",
+        "jenkins-cd_stg",
+        "jenkins-cd_ae1",
+        "jenkins-cd_au1",
+        "jenkins-cd_ca1",
+        "jenkins-cd_eu2",
+        "jenkins-cd_in1",
+        "jenkins-cd_us1",
+    ],
+    "48-jenkins": [
+        "jenkins-ci_do1",
+        "jenkins-cd_do1",
+        "jenkins-shield_do1",
+        # "jenkins-cd_dev",
+        # "jenkins-shield_dev",
+    ],
+    '50-ec2-go-carbon': [
+        'go-carbon_do1',
+        # 'go-carbon_dev',
+        # 'go-carbong_stg',
+    ],
+    '50-elasticsearch-cluster': [
+        'es-main-01_do1',
+        # 'es-main_01_dev',
+    ],
+    '51-couchbase-cluster': [
+        'cb-shared_do1',
+        # 'cb-shared_dev',
+    ]
+}
+
+# Directories that will be excluded from the configuration
+EXCLUDED_DIRS = [
+    "10-sns",
+    "11-network-route53_zones",
+    "12-acm",
+    "29-ecr-pull-through-cache-rules",
+    "30-ecr-pull-images",
+    "30-eks",  # needs to be removed after the migration to EKS 1.34 is merged to master
+    "32-eks-node-groups",  # only needed when creating a new env until we deploy karpenter
+    "45-aws-efs-csi-driver",  # needs code for override workspace name
+]
+
+
+# These functions compute the paths to the tfvars for the different special
+# directories/workspaces.
+def compute_tfvars_jenkins(workspace):
+    front, w = workspace.rsplit('_', 1)
+    _, typ = front.rsplit('-', 1)
+    return [
+        '${DIR}/../tfvars/common.tfvars',
+        '${{DIR}}/../tfvars/{w}.tfvars'.format(w=w),
+        '${{DIR}}/tfvars/{typ}/common.tfvars'.format(typ=typ),
+        '${{DIR}}/tfvars/{typ}/{w}.tfvars'.format(typ=typ, w=w)
+    ]
+
+
+def compute_tfvars_ec2_go_carbon(workspace):
+    _, w = workspace.rsplit('_', 1)
+    return [
+        '${DIR}/../tfvars/common.tfvars',
+        '${{DIR}}/../tfvars/{w}.tfvars'.format(w=w),
+        '${{DIR}}/tfvars/{w}.tfvars'.format(w=w)
+    ]
+
+
+def compute_tfvars_elasticsearch_cluster(workspace):
+    _, w = workspace.rsplit('_', 1)
+    return [
+        '${DIR}/../tfvars/common.tfvars',
+        '${{DIR}}/../tfvars/{w}.tfvars'.format(w=w),
+        '${DIR}/tfvars/${WORKSPACE}.tfvars'
+    ]
+
+
+def compute_tfvars_couchebase_cluster(workspace):
+    t, w = workspace.rsplit('_', 1)
+    return [
+        '${DIR}/../tfvars/common.tfvars',
+        '${{DIR}}/../tfvars/{w}.tfvars'.format(w=w),
+        '${{DIR}}/tfvars/{t}.tfvars'.format(t=t),
+        '${DIR}/tfvars/${WORKSPACE}.tfvars'
+    ]
+
+
+# These directories require special work to compute their tfvars paths
+SPECIAL_DIRS = {
+    '45-aws-efs-csi-driver': {
+        'tfvars': compute_tfvars_jenkins,
+    },
+    '48-jenkins': {
+        'tfvars': compute_tfvars_jenkins,
+    },
+    '50-ec2-go-carbon': {
+        'tfvars': compute_tfvars_ec2_go_carbon,
+    },
+    '50-elastic-cluster': {
+        'tfvars': compute_tfvars_elasticsearch_cluster,
+    },
+    '51-couchbase-cluster': {
+        'tfvars': compute_tfvars_couchebase_cluster
+    }
+}
+
+
+# If a directory looks like "$NUMBER-$SOMETHING", extract $NUMBER otherwise
+# return None.
+def starts_with_number(fname):
+    s = fname.split("-", 1)
+    if len(s) > 1:
+        try:
+            return int(s[0])
+        except ValueError:
+            return None
+
+
+# We are going to store the paths to the required tfvars in variables in the
+# stack then access them in the workflow.  The format of tfvars are what works
+# for "file_patterns" though, so we need to translate it to something that can
+# be passed into "extra_args" in workflows.
+def cleanup_path(p):
+    if p.startswith('${DIR}/'):
+        p = p.replace('${DIR}/', '')
+
+    return p.removeprefix('${DIR/'
+                          ).replace('${DIR}', '${TERRATEAM_DIR}'
+                                    ).replace('${WORKSPACE}', '${TERRATEAM_WORKSPACE}')
+
+
+# Given the directories, build out the stacks configuration.  This will be one
+# workflow per "rank" (10, 20, 30, etc), which will nest all of the dir +
+# workspace stacks.  each dir + workspace stack is named "$DIR-$WORKSPACE" and
+# includes any variables needed to configure its workflow.
+def build_stacks(dirs, stacks):
+    for idx, dir_names in sorted(dirs.items()):
+        if idx not in stacks:
+            stacks[str(idx)] = {
+                'stacks': [
+                    '-'.join([d, w])
+                    for d in dir_names
+                    for w in WORKSPACES_OVERRIDE.get(d, DEFAULT_WORKSPACES)
+                ],
+                "rules": {"plan_after": [str(i) for i in dirs.keys() if i < idx]},
+            }
+
+            for d in dir_names:
+                for w in WORKSPACES_OVERRIDE.get(d, DEFAULT_WORKSPACES):
+                    if d in SPECIAL_DIRS:
+                        stacks['-'.join([d, w])] = {
+                            'tag_query': 'dir:{d} and workspace:{w}'.format(d=d, w=w),
+                            'variables': {
+                                ('TFVAR_{n}'.format(n=n)): cleanup_path(fname)
+                                for n, fname in zip(range(len(SPECIAL_DIRS[d]['tfvars'](w))),
+                                                    SPECIAL_DIRS[d]['tfvars'](w))
+                            }
+                        }
+                    else:
+                        stacks['-'.join([d, w])] = {
+                            'tag_query': 'dir:{d} and workspace:{w}'.format(d=d, w=w),
+                        }
+
+
+# Build the "dirs" section of the configuration.  This specifies the
+# per-workspace "file_patterns" of each workspace.  If it is a special
+# directory, then it gets a computed set of file patterns.
+def build_dirs(dirs, dirs_section):
+    for ds in dirs.values():
+        for d in ds:
+            if d in SPECIAL_DIRS:
+                workspaces = {
+                    w: {
+                        "when_modified": {
+                            "file_patterns": SPECIAL_DIRS[d]['tfvars'](w)
+                        }
+                    }
+                    for w in WORKSPACES_OVERRIDE.get(d, DEFAULT_WORKSPACES)
+                }
+            else:
+                workspaces = {
+                    w: {
+                        "when_modified": {
+                            "file_patterns": [
+                                "${DIR}/../tfvars/common.tfvars",
+                                "${DIR}/*.tf",
+                                "${DIR}/**/${WORKSPACE}.tfvars",
+                                "${DIR}/.terrateam",
+                            ]
+                        }
+                    }
+                    for w in WORKSPACES_OVERRIDE.get(d, DEFAULT_WORKSPACES)
+                }
+            dirs_section.setdefault(d, {})["workspaces"] = workspaces
+
+
+# Build the "workflows" section of the configuration.  For each directory,
+# determine if it is one with custom tfvars section, and if so construct a
+# workflows section for every workspace that has the same number of tfvar files
+# and group them into the same workspace.
+#
+# Finally, add the default workspace
+def build_workflows(dirs, workflows):
+    special_workflows = {}
+
+    for ds in dirs.values():
+        for d in ds:
+            if d in SPECIAL_DIRS:
+                for w in WORKSPACES_OVERRIDE.get(d, DEFAULT_WORKSPACES):
+                    tfvars = SPECIAL_DIRS[d]['tfvars'](w)
+                    num_tfvars = len(tfvars)
+
+                    special_workflows.setdefault(num_tfvars, {}).setdefault(d, []).append(w)
+
+    for num_tfvars, ds in special_workflows.items():
+        tag_query = ' or '.join([
+            'stack_name:{d}-{w}'.format(d=d, w=w)
+            for d, ws in ds.items()
+            for w in ws
+            ])
+
+        extra_args = [
+            '--var-file=${{TFVAR_{n}}}'.format(n=n)
+            for n in range(num_tfvars)
+        ]
+
+        workflow = {
+            "tag_query": tag_query,
+            "plan": [
+                {
+                    "type": "init",
+                },
+                {
+                    "type": "plan",
+                    "extra_args": extra_args,
+                },
+            ],
+            "apply": [
+                {
+                    "type": "init",
+                },
+                {
+                    "type": "apply",
+                    "extra_args": extra_args,
+                },
+            ],
+        }
+
+        workflows.insert(0, workflow)
+
+    workflows.append(
+        {
+            "tag_query": "",
+            "plan": [
+                {
+                    "type": "init",
+                },
+                {
+                    "type": "plan",
+                    "extra_args": [
+                        "--var-file=../tfvars/common.tfvars",
+                        "--var-file=../tfvars/${TERRATEAM_WORKSPACE}.tfvars",
+                    ],
+                },
+            ],
+            "apply": [
+                {
+                    "type": "init",
+                },
+                {
+                    "type": "apply",
+                    "extra_args": [
+                        "--var-file=../tfvars/common.tfvars",
+                        "--var-file=../tfvars/${TERRATEAM_WORKSPACE}.tfvars",
+                    ],
+                },
+            ],
+        }
+    )
+
+
+def build_hooks(hooks):
+    hooks["plan"] = {
+        "pre": [
+            {
+                "type": "run",
+                "cmd": ["ssh-keyscan-pre-hook", "bitbucket.org"],
+            },
+            {
+                "type": "run",
+                "cmd": [
+                    "${TERRATEAM_ROOT}/.terrateam/bin/clone-repos.sh",
+                ],
+            },
+            {
+                "type": "run",
+                "cmd": [
+                    "${TERRATEAM_ROOT}/.terrateam/bin/install-python-dependencies.sh",
+                ],
+            },
+        ],
+        # "post": [
+        #     {
+        #         "type": "run",
+        #         "cmd": ["cat", "/tmp/k8s-tunnel-monitoring-grafana-3000.log"],
+        #         "run_on": "always",
+        #     },
+        # ],
+    }
+    hooks["apply"] = {
+        "pre": [
+            {
+                "type": "run",
+                "cmd": ["ssh-keyscan-pre-hook", "bitbucket.org"],
+            },
+            {
+                "type": "run",
+                "cmd": [
+                    "${TERRATEAM_ROOT}/.terrateam/bin/clone-repos.sh",
+                ],
+            },
+            {
+                "type": "run",
+                "cmd": [
+                    "${TERRATEAM_ROOT}/.terrateam/bin/install-python-dependencies.sh",
+                ],
+            },
+        ]
+    }
+
+
+## Main functionality
+dirs = {}
+
+for dir_name in sorted(os.listdir(".")):
+    n = starts_with_number(dir_name)
+    if (
+        n is not None
+        and os.path.isdir(dir_name)
+        and n >= MIN_DIR_NUM
+        and n <= MAX_DIR_NUM
+        and dir_name not in EXCLUDED_DIRS
+    ):
+        dirs.setdefault(n, []).append(dir_name)
+
+repo_config = json.load(sys.stdin)
+
+stacks = repo_config.get("stacks", {}).get("names", {})
+
+if stacks is None:
+    stacks = {}
+
+build_stacks(dirs, stacks)
+
+repo_config.setdefault("stacks", {})["names"] = stacks
+
+build_dirs(dirs, repo_config.setdefault("dirs", {}))
+
+build_workflows(dirs, repo_config.setdefault("workflows", []))
+
+build_hooks(repo_config.setdefault('hooks', {}))
+
+repo_config.setdefault('when_modified', {})['autoplan'] = False
+
+print(json.dumps(repo_config, indent=2))
