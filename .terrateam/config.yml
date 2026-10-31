@@ -1,2 +1,45 @@
+# The same six directories and the same depends_on as core/stacks/0028, with one
+# difference: both environment stacks are nested under the stack everything.
+# The two stacks now share a stack, so the dependency stays inside it and the
+# configuration must be accepted.
+dirs:
+  dev/networking:
+    tags:
+      - dev
+  dev/database:
+    tags:
+      - dev
+    when_modified:
+      depends_on: 'dir:prod/networking'
+  dev/app:
+    tags:
+      - dev
+    when_modified:
+      depends_on: 'dir:dev/database'
+  prod/networking:
+    tags:
+      - prod
+  prod/database:
+    tags:
+      - prod
+    when_modified:
+      depends_on: 'dir:prod/networking'
+  prod/app:
+    tags:
+      - prod
+    when_modified:
+      depends_on: 'dir:prod/database'
+
+stacks:
+  names:
+    everything:
+      stacks:
+        - dev
+        - prod
+    dev:
+      tag_query: 'dev'
+    prod:
+      tag_query: 'prod'
+
 engine:
   name: tofu
