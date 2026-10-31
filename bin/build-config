@@ -1,0 +1,42 @@
+#! /usr/bin/env python3
+
+import json
+import os
+import sys
+
+def starts_with_number(fname):
+    s = fname.split('-', 1)
+    if len(s) > 1:
+        try:
+            return int(s[0])
+        except ValueError:
+            return None
+
+dirs = {}
+
+for fname in os.listdir('.'):
+    n = starts_with_number(fname)
+    if n is not None and os.path.isdir(fname):
+        dirs.setdefault(n, []).append(fname)
+
+repo_config = json.load(sys.stdin)
+
+stacks = repo_config.get('stacks', {}).get('names', {})
+
+if stacks is None:
+    stacks = {}
+
+for idx, names in dirs.items():
+    if idx not in stacks:
+        stacks[str(idx)] = {
+            'tag_query': ' or '.join(['dir:' + n for n in names]),
+            'rules': {
+                'plan_after': [str(i) for i in dirs.keys() if i < idx]
+            }
+        }
+
+
+repo_config.setdefault('stacks', {})['names'] = stacks
+
+print(json.dumps(repo_config, indent=2))
+

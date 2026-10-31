@@ -1,2 +1,7 @@
+config_builder:
+  enabled: true
+  script: |
+    ${TERRATEAM_ROOT}/bin/build-config
+
 engine:
   name: tofu
