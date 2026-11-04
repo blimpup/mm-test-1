@@ -4,7 +4,7 @@ engine:
 
 workflows:
   - tag_query: dir:tf
-    lock_policy: apply
+    lock_policy: strict
     plan:
       - type: run
         cmd: ['${TERRATEAM_ROOT}/.terrateam/ensure-state.sh']
