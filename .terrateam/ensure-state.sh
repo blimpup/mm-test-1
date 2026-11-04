@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-run_id=applies_run_at_once-0a5e2f-0
+run_id=plan_after_apply_waits_for_the_merge-08433b-0
 
 set -e
 set -u
