@@ -3,3 +3,12 @@ cost_estimation:
 
 engine:
   name: tofu
+
+parallel_runs: 10
+
+batch_runs:
+  enabled: true
+  max_workspaces_per_batch: 1
+
+work_manifests:
+  concurrent_runs: 2
