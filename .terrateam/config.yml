@@ -1,2 +1,15 @@
 engine:
   name: tofu
+# The [run] step that sleeps is what keeps the autoplan plan of [base] running while the test
+# asks for a second plan, which is the point of this test.  The [init] and [plan] steps after it
+# must be in the list: a [plan] list with no [plan] step makes the whole repo config invalid, and
+# then the test gets a config error instead of the plan it waits for.
+workflows:
+- plan:
+  - cmd:
+    - sleep
+    - '30'
+    type: run
+  - type: init
+  - type: plan
+  tag_query: dir:base
