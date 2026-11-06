@@ -1,19 +1,2 @@
 engine:
-  name: stategraph
-  tf_cmd: tofu
-
-workflows:
-  - tag_query: dir:tf
-    lock_policy: strict
-    plan:
-      - type: run
-        cmd: ['${TERRATEAM_ROOT}/.terrateam/ensure-state.sh']
-        visible_on: always
-      - type: init
-      - type: plan
-    apply:
-      - type: run
-        cmd: ['${TERRATEAM_ROOT}/.terrateam/ensure-state.sh']
-        visible_on: always
-      - type: init
-      - type: apply
+  name: tofu
