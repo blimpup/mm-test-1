@@ -1,2 +1,19 @@
+dirs:
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
+# The [run] step that sleeps is what keeps the plan of [database] running while the test applies
+# again, which is the point of this test.  The [init] and [plan] steps after it must be in the
+# list: a [plan] list with no [plan] step makes the whole repo config invalid, and then the test
+# gets a config error instead of the plan it waits for.
+workflows:
+- plan:
+  - cmd:
+    - sleep
+    - '30'
+    type: run
+  - type: init
+  - type: plan
+  tag_query: dir:database
