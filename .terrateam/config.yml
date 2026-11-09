@@ -1,13 +1,7 @@
-dirs:
-  a:
-    when_modified:
-      depends_on:
-        tag_query: dir:b
-        prune_on_no_change: true
-  b:
-    when_modified:
-      depends_on:
-        tag_query: dir:c
-        prune_on_no_change: true
+# A plan and an apply join the run of the steps before them.  The default,
+# setup, permits the tree builder, the config builder and the indexer only.
+batch_runs:
+  merge_steps: all
+
 engine:
   name: tofu
