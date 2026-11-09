@@ -3,5 +3,15 @@
 batch_runs:
   merge_steps: all
 
+dirs:
+  database1:
+    when_modified:
+      depends_on: dir:base
+  database2:
+    when_modified:
+      depends_on: dir:base
+  webservice:
+    when_modified:
+      depends_on: dir:database1 or dir:database2
 engine:
   name: tofu
