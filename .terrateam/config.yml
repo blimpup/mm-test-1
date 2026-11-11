@@ -1,2 +1,9 @@
+stacks:
+  names:
+    tf1:
+      tag_query: ''
+    tf2:
+      tag_query: ''
+
 engine:
   name: tofu
