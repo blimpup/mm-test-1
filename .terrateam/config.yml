@@ -1,2 +1,8 @@
+parameters:
+  aliases:
+    debug:
+      action: plan
+      params:
+        mode: DEBUG
 engine:
   name: tofu
