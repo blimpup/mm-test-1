@@ -1,2 +1,13 @@
 engine:
   name: tofu
+parameters:
+  names:
+    mode:
+      values:
+      - DEBUG
+      - RELEASE
+  aliases:
+    debug:
+      action: plan
+      params:
+        mode: DEBUG
