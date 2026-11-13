@@ -1,11 +1,2 @@
-dirs:
-  .:
-    when_modified:
-      file_patterns:
-      - subdir/**/*.tf
-      - ./*.tf
-  subdir/**:
-    when_modified:
-      file_patterns: []
 engine:
   name: tofu
