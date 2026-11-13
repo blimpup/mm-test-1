@@ -42,7 +42,7 @@
        - uses: actions/checkout@v4
        - name: Run Terrateam Action
          id: terrateam
-         uses: terrateamio/action@main
+         uses: terrateamio/action@3270-add-param-orc-runs
          with:
            work-token: '${{ github.event.inputs.work-token }}'
            api-base-url: '${{ github.event.inputs.api-base-url }}'
