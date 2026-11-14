@@ -1,2 +1,11 @@
+# The tree builder is what makes Terrateam store a repo tree, and store one for the destination
+# branch as well as for the pull request branch. Without it there is no tree to contend on and this
+# test measures nothing. Same script on both branches so a file that did not change keeps its id.
+tree_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
+
 engine:
   name: tofu
