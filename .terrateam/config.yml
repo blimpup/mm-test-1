@@ -1,2 +1,13 @@
-destination_branches:
-  - dest
+tree_builder:
+  enabled: true
+  script: '${TERRATEAM_ROOT}/bin/generate build-tree'
+
+config_builder:
+  enabled: true
+  script: '${TERRATEAM_ROOT}/bin/generate build-config'
+
+hooks:
+  all:
+    pre:
+      - type: run
+        cmd: ['${TERRATEAM_ROOT}/bin/generate', 'build']
