@@ -1,2 +1,14 @@
 engine:
   name: tofu
+# The test proves that a comment starts the run it asks for, so the comment has to be the only
+# plan of the pull request.  An autoplan of the same context plans the dirspace first, and the
+# comment is then answered as already planned and starts nothing.
+when_modified:
+  autoplan: false
+parameters:
+  names:
+    mode:
+      values:
+      - DEBUG
+      - RELEASE
+      fail_if_set: true
