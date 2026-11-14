@@ -1,2 +1,4 @@
 engine:
   name: tofu
+  outputs:
+    collect: true
