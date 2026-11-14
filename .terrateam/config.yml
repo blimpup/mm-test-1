@@ -1,2 +1,20 @@
+dirs:
+  database:
+    when_modified:
+      depends_on: dir:base
 engine:
   name: tofu
+# The comment has to be the only plan of the pull request, because an autoplan of the same context
+# plans the first layer first and the comment is then answered as already planned and starts
+# nothing.  The dir [database] keeps this value: a dir inherits the keys it does not set.
+when_modified:
+  autoplan: false
+parameters:
+  names:
+    mode:
+      values:
+      - DEBUG
+      - RELEASE
+    region:
+      values:
+      - us-east-1
