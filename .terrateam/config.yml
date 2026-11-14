@@ -1,2 +1,15 @@
+# [destination_branches] always comes from the config of the default branch,
+# never from the branch of the pull request.  The pull request of this test
+# targets [dest], so without this key the only valid destination is the default
+# branch, [check_valid_destination_branch] answers NOOP, and no plan runs.
 destination_branches:
   - dest
+
+tree_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
+
+engine:
+  name: tofu
