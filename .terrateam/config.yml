@@ -1,12 +1,11 @@
-# Two things have to be true at once for this fixture to reproduce anything.
+# tree_builder is what puts the destination branch's files into the pull request branch's stored
+# tree: the runner merges the destination branch into the checkout before it runs this script, so
+# the tree of a pull request branch is the tree of the MERGE, not of the branch.  Same script on
+# every branch, so a file that did not change keeps its id.
 #
-# tree_builder is what makes Terrateam store a repo tree, and store one for the destination branch
-# as well as for the pull request branch. Without it there is no destination-branch tree work
-# manifest to watch. Same script on both branches so a file that did not change keeps its id.
-#
-# indexer is what makes the interleaving deterministic. [branch_dirspaces] reaches the index
-# through [synthesized_config], and the index work manifest is only created after the branch tree
-# is stored, so [branch_dirspaces] is still suspended when the destination tree's result arrives.
+# indexer consumes that tree.  The index work manifest is handed every directory in it, and the
+# index run is the one kind of run the runner does NOT merge -- which is the defect this fixture
+# exists for.  See the comment on test_replan_after_new_dest_dir.
 tree_builder:
   enabled: true
   script: |
