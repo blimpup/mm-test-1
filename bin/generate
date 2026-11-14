@@ -1,0 +1,104 @@
+#! /usr/bin/env python3
+
+import argparse
+import hashlib
+import json
+import logging
+import os
+import subprocess
+import sys
+import yaml
+
+
+TMPL_PATH = '.terrateam/template.yml'
+
+
+def read_template(path):
+    with open(path) as f:
+        return yaml.safe_load(f.read())
+
+
+def compute_id(v):
+    return hashlib.sha256(json.dumps(v, sort_keys=True).encode('utf-8')).hexdigest()
+
+
+def do_build_tree(args):
+    tmpl = read_template(TMPL_PATH)
+    files = [
+        {
+            'path': os.path.join(k, 'main.tf'),
+            'id': compute_id(v),
+        }
+        for k, v in tmpl.items()
+    ]
+    print(json.dumps(files))
+
+
+def do_build_config(args):
+    tmpl = read_template(TMPL_PATH)
+    config = json.loads(sys.stdin.read())
+    dirs = {
+        k: {
+            'when_modified': {
+                'file_patterns': ['${DIR}/*.tf'],
+                'depends_on': ' or '.join(['dir:' + dep for dep in v.get('depends_on', [])]) or None
+            }
+        }
+        for k, v in tmpl.items()
+    }
+    config.setdefault('dirs', {}).update(dirs)
+    print(json.dumps(config))
+
+
+def do_build(args):
+    tmpl = read_template(TMPL_PATH)
+    for k, v in tmpl.items():
+        os.makedirs(k, exist_ok=True)
+        with open(os.path.join(k, 'main.tf'), 'w') as f:
+            for name, attrs in v['resources'].items():
+                f.write('resource "{}" "{}" {{}}\n\n'.format( attrs['type'], name))
+
+
+def make_parser():
+    parser = argparse.ArgumentParser(
+        description='Generate Terraform files from templates'
+    )
+
+    parser.add_argument('--log-level',
+                        help='Set the log level',
+                        default='error',
+                        choices=['debug', 'info', 'error'],
+                        type=str)
+
+    subparsers = parser.add_subparsers()
+
+    parser_build_tree = subparsers.add_parser('build-tree', help='Build the tree')
+    parser_build_tree.set_defaults(func=do_build_tree)
+
+    parser_build_config = subparsers.add_parser('build-config', help='Build Terrateam config')
+    parser_build_config.set_defaults(func=do_build_config)
+
+    parser_build = subparsers.add_parser('build', help='Build Terraform files')
+    parser_build.set_defaults(func=do_build)
+
+    return parser
+
+
+def setup_logging(level):
+    LOG_LEVELS = {
+        'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'error': logging.ERROR
+    }
+    logging.basicConfig(level=LOG_LEVELS[level])
+
+
+def main():
+    parser = make_parser()
+    args = parser.parse_args()
+    setup_logging(args.log_level)
+    args.func(args)
+
+
+if __name__ == '__main__':
+    main()
