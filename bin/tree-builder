@@ -9,7 +9,6 @@ for root, dirs, fs in os.walk('./'):
     files.extend([
         {
             'path': os.path.join(root, f),
-            'changed': root == './tf'
         }
         for f in fs])
 
