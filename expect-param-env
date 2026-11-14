@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+name="$1"
+
+echo "PARAM ${name}=${!name}"
+
+# Always fail, so the output makes it to the plan output
+exit 1
