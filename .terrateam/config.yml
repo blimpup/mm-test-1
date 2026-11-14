@@ -1,18 +1,18 @@
-# A plan and an apply join the run of the steps before them.  The default,
-# setup, permits the tree builder, the config builder and the indexer only.
-batch_runs:
-  merge_steps: all
-
 tree_builder:
   enabled: true
-  script: '${TERRATEAM_ROOT}/bin/generate build-tree'
+  script: '#! /usr/bin/env bash
 
+    echo "On purpose failed tree run" >&2
+
+    exit 1
+
+    '
 config_builder:
   enabled: true
-  script: '${TERRATEAM_ROOT}/bin/generate build-config'
+  script: '#! /usr/bin/env bash
 
-hooks:
-  all:
-    pre:
-      - type: run
-        cmd: ['${TERRATEAM_ROOT}/bin/generate', 'build']
+    echo ''{"engine": {"name": "tofu"}}''
+
+    '
+engine:
+  name: tofu
