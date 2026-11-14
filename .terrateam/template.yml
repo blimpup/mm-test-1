@@ -21,8 +21,6 @@ database:
       type: null_resource
     rds_backup_backup:
       type: null_resource
-    rds_backup_backup2:
-      type: null_resource
 webservice:
   depends_on: [database, networking]
   resources:
