@@ -1,2 +1,12 @@
+dirs:
+  ds_one:
+    tags:
+    - dev
+  ds_two:
+    tags:
+    - dev
+  ds_three:
+    tags:
+    - dev
 engine:
   name: tofu
