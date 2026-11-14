@@ -1,18 +1,2 @@
-tree_builder:
-  enabled: true
-  script: '#! /usr/bin/env bash
-
-    echo "On purpose failed tree run" >&2
-
-    exit 1
-
-    '
-config_builder:
-  enabled: true
-  script: '#! /usr/bin/env bash
-
-    echo ''{"engine": {"name": "tofu"}}''
-
-    '
-engine:
-  name: tofu
+destination_branches:
+  - dest
