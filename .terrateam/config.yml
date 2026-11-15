@@ -1,2 +1,12 @@
+# The tree builder of the pull request branch decides for the destination branch as well, so this
+# script also runs against a checkout of the destination branch.  Keep bin/tree-builder on both
+# branches: without it here the destination branch tree build fails.  Same script on both branches
+# so a file that did not change keeps its id.
+tree_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
+
 engine:
   name: tofu
