@@ -1,19 +1,10 @@
-# An open pull request whose apply is held open by a hook, so that the test can move the
-# destination branch while the apply runs (RFD 2356).  The tree builder is fast here, so the tree
-# of a commit of this branch is stored as soon as the commit lands.
-tree_builder:
+apply_requirements:
+  checks:
+  - require_ready_for_review_pr: false
+    tag_query: ''
+automerge:
   enabled: true
-  script: |
-    #! /usr/bin/env bash
-    $TERRATEAM_ROOT/bin/tree-builder
-
 engine:
   name: tofu
-
-hooks:
-  apply:
-    pre:
-    - cmd:
-      - 'sleep'
-      - '120'
-      type: run
+when_modified:
+  autoplan_draft_pr: true
