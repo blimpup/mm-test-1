@@ -1,6 +1,6 @@
-# An open pull request with the tree builder on, whose apply is held open by a hook, so that the
-# test can push to the feature branch while the apply runs (RFD 2356).  The same tree builder is on
-# every branch, so a file that did not change keeps its id.
+# An open pull request whose apply is held open by a hook, so that the test can move the
+# destination branch while the apply runs (RFD 2356).  The tree builder is fast here, so the tree
+# of a commit of this branch is stored as soon as the commit lands.
 tree_builder:
   enabled: true
   script: |
@@ -15,5 +15,5 @@ hooks:
     pre:
     - cmd:
       - 'sleep'
-      - '60'
+      - '120'
       type: run
