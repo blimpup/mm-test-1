@@ -1,19 +1,25 @@
-engine:
-  name: stategraph
-  tf_cmd: tofu
+# The same job as the feature tree, without the dirs: the default branch holds
+# no terraform directory.  The builders run the same steps there, so a run of
+# the default branch meets no configuration that the feature branch does not.
+batch_runs:
+  enabled: true
+  max_workspaces_per_batch: 1
+  max_work_manifests_per_node: 2
+  merge_steps: by_phase
 
-workflows:
-  - tag_query: dir:tf
-    lock_policy: apply
-    plan:
-      - type: run
-        cmd: ['${TERRATEAM_ROOT}/.terrateam/ensure-state.sh']
-        visible_on: always
-      - type: init
-      - type: plan
-    apply:
-      - type: run
-        cmd: ['${TERRATEAM_ROOT}/.terrateam/ensure-state.sh']
-        visible_on: always
-      - type: init
-      - type: apply
+tree_builder:
+  enabled: true
+  script: '${TERRATEAM_ROOT}/bin/tree-builder'
+
+config_builder:
+  enabled: true
+  script: |
+    #! /usr/bin/env python3
+    import json
+    import sys
+    config = json.loads(sys.stdin.read())
+    config.setdefault('indexer', {})['enabled'] = True
+    print(json.dumps(config))
+
+engine:
+  name: tofu

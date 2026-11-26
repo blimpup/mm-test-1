@@ -1,0 +1,21 @@
+#! /usr/bin/env python3
+
+# The tree of this repository, with an id for each file, so that Terrateam can
+# see which files the branch changed.  The walk skips .git: it is not part of
+# the tree, and it is large.
+
+import hashlib
+import json
+import os
+
+files = []
+
+for root, dirs, names in os.walk('.'):
+    if '.git' in dirs:
+        dirs.remove('.git')
+    for name in names:
+        path = os.path.relpath(os.path.join(root, name), '.')
+        with open(path, 'rb') as f:
+            files.append({'path': path, 'id': hashlib.md5(f.read()).hexdigest()})
+
+print(json.dumps(files))
