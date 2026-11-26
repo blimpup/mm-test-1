@@ -1,34 +1,12 @@
-# The same job as the feature tree, without the dirs: the default branch holds
-# no terraform directory.  The builders run the same steps there, so a run of
-# the default branch meets no configuration that the feature branch does not.
-#
-# The branch flow builds the tree, the configuration and the index of the
-# feature branch only when the push of the feature branch is admitted here.
-# [main] stays listed because a pull request's valid destinations come from
-# this same key.
-destination_branches:
-  - branch: 'test/*'
-  - main
-
-batch_runs:
-  enabled: true
-  max_workspaces_per_batch: 1
-  max_work_manifests_per_node: 2
-  merge_steps: by_phase
-
+# The tree builder of the pull request branch decides for the destination branch as well, so this
+# script also runs against a checkout of the destination branch.  Keep bin/tree-builder on both
+# branches: without it here the destination branch tree build fails.  Same script on both branches
+# so a file that did not change keeps its id.
 tree_builder:
   enabled: true
-  script: '${TERRATEAM_ROOT}/bin/tree-builder'
-
-config_builder:
-  enabled: true
   script: |
-    #! /usr/bin/env python3
-    import json
-    import sys
-    config = json.loads(sys.stdin.read())
-    config.setdefault('indexer', {})['enabled'] = True
-    print(json.dumps(config))
+    #! /usr/bin/env bash
+    $TERRATEAM_ROOT/bin/tree-builder
 
 engine:
   name: tofu
