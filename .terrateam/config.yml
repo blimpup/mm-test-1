@@ -1,11 +1,10 @@
-# The destination commit that the apply starts on.  Its tree builder waits longer than the apply
-# runs, thus the server has no tree of this commit when the result of the apply arrives (RFD 2356,
-# Fail safe).
+# An open pull request whose apply is held open by a hook, so that the test can move the
+# destination branch while the apply runs (RFD 2356).  The tree builder is fast here, so the tree
+# of a commit of this branch is stored as soon as the commit lands.
 tree_builder:
   enabled: true
   script: |
     #! /usr/bin/env bash
-    sleep 300
     $TERRATEAM_ROOT/bin/tree-builder
 
 engine:
